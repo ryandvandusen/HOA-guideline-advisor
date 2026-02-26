@@ -89,10 +89,11 @@ export function ViolationReportForm() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="report-address" className="block text-sm font-medium text-gray-700 mb-1">
             Property Address <span className="text-red-500">*</span>
           </label>
           <Input
+            id="report-address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="123 Murrayhill Way, Beaverton, OR"
@@ -101,10 +102,11 @@ export function ViolationReportForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="report-description" className="block text-sm font-medium text-gray-700 mb-1">
             Describe the Violation <span className="text-red-500">*</span>
           </label>
           <Textarea
+            id="report-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe what you observed and which guideline may be violated (e.g., fence height exceeds 6 feet, non-approved paint color, etc.)"

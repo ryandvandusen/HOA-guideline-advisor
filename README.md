@@ -64,6 +64,68 @@ The admin portal is at [http://localhost:3000/admin](http://localhost:3000/admin
 
 ---
 
+## Smoke Tests
+
+Playwright smoke tests verify that the main pages load and key UI elements are present. They do **not** call the Claude API or write any real data.
+
+### Run locally
+
+**Prerequisites:** the app must be built first (the test runner starts `next build && next start` automatically).
+
+Install the Chromium browser one time:
+
+```bash
+npx playwright install --with-deps chromium
+```
+
+Then run the smoke suite:
+
+```bash
+npm run test:e2e
+```
+
+To watch tests run in a headed browser (useful for debugging):
+
+```bash
+npx playwright test --headed
+```
+
+To open the interactive UI mode:
+
+```bash
+npx playwright test --ui
+```
+
+Test results and traces are written to `playwright-report/` (gitignored).
+
+### What the smoke tests cover
+
+| Test | Description |
+|---|---|
+| Homepage loads | Header, all three tab triggers, and Admin link are visible |
+| Compliance tab default | "Check Compliance" is active by default and shows the upload area |
+| Guidelines tab | Clicking the tab loads the guideline sidebar with category names |
+| Report tab | Clicking the tab shows the address, description fields, and submit button |
+| Footer | Footer text is present |
+| Admin login form | `/admin` renders username, password fields and a sign-in button |
+| Admin rejects bad creds | Submitting wrong credentials shows an error and stays on `/admin` |
+
+### CI (GitHub Actions)
+
+The workflow at `.github/workflows/smoke-test.yml` runs automatically on every push and pull request to `main`.
+
+It uses placeholder values for `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `JWT_SECRET` (the smoke tests don't require valid credentials to pass). If you want the login-rejection test to use your real admin credentials, add them as [repository secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets):
+
+| Secret | Description |
+|---|---|
+| `ADMIN_USERNAME` | Your admin portal username |
+| `ADMIN_PASSWORD` | Your admin portal password |
+| `JWT_SECRET` | Your JWT signing secret |
+
+The Playwright HTML report is uploaded as a CI artifact (`playwright-report`) and retained for 14 days.
+
+---
+
 ## Environment Variables
 
 Copy `.env.local.example` to `.env.local` and set each value.

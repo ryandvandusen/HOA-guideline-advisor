@@ -49,8 +49,9 @@ export function AdminLoginForm({ onLogin }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <label htmlFor="admin-username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
             <Input
+              id="admin-username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="admin"
@@ -59,8 +60,9 @@ export function AdminLoginForm({ onLogin }: Props) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label htmlFor="admin-password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <Input
+              id="admin-password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
