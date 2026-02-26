@@ -237,5 +237,7 @@ export async function continueChat(
     messages,
   });
 
-  return response.content[0].type === 'text' ? response.content[0].text : '';
+  const rawText = response.content[0].type === 'text' ? response.content[0].text : '{}';
+  const parsed = parseClaudeJson(rawText);
+  return parsed.message || rawText;
 }

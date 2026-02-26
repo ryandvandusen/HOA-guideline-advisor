@@ -83,6 +83,7 @@ export function ComplianceChat() {
   async function handleSubmit() {
     const trimmed = input.trim();
     if (isLoading) return;
+    if (!submissionId && !selectedSlug) return;
     if (!submissionId && !uploadedFile && !trimmed) return;
     setError(null);
     setIsLoading(true);

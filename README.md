@@ -18,7 +18,7 @@ AI-powered HOA community portal for homeowners to check property compliance via 
 - **Node.js** 18.17 or later
 - **npm** 9 or later
 - An **Anthropic API key** — get one at [console.anthropic.com](https://console.anthropic.com)
-- The HOA guideline `.docx` files (place them in a directory you control)
+- The HOA guidelines PDF (`2023-MOA-Design-Guidelines.pdf`) placed in the directory set by `GUIDELINES_PATH`
 
 ---
 
@@ -61,6 +61,40 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) to view the homeowner portal.
 
 The admin portal is at [http://localhost:3000/admin](http://localhost:3000/admin).
+
+---
+
+## Updating the Guidelines PDF
+
+When the HOA publishes a new version of the design guidelines PDF, follow these steps:
+
+### 1. Replace the PDF
+
+Put the new PDF in the folder set by `GUIDELINES_PATH` in `.env.local`, naming it exactly:
+```
+2023-MOA-Design-Guidelines.pdf
+```
+
+### 2. Re-extract the guideline text
+
+```bash
+node scripts/extract-guidelines.cjs
+```
+
+This reads the PDF and writes one `.txt` file per category into `src/data/guidelines/`. The console output shows how many characters were extracted per category — if any show 0 or suspiciously few characters, the section heading in the PDF may have changed and `scripts/extract-guidelines.cjs` will need to be updated to match the new heading text.
+
+### 3. Review the output
+
+Spot-check a few files in `src/data/guidelines/` to confirm the content looks correct. You can manually edit any `.txt` file to fix extraction artifacts.
+
+### 4. Commit the updated files
+
+```bash
+git add src/data/guidelines/
+git commit -m "update: refresh guidelines from updated PDF"
+```
+
+The app reads these static `.txt` files directly at runtime — no PDF parsing happens in production.
 
 ---
 
@@ -136,8 +170,8 @@ Copy `.env.local.example` to `.env.local` and set each value.
 | `ADMIN_PASSWORD` | Yes | Admin portal login password — **use a strong password** |
 | `JWT_SECRET` | Yes | Secret for signing admin session tokens — must be 32+ random characters |
 | `ANTHROPIC_API_KEY` | Yes | Claude API key from [console.anthropic.com](https://console.anthropic.com) |
-| `GUIDELINES_PATH` | Yes | Absolute path to the folder containing the HOA `.docx` guideline files |
-| `GUIDELINES_CACHE_PATH` | Yes | Absolute path to where converted HTML guidelines are cached |
+| `GUIDELINES_PATH` | Yes | Absolute path to the folder containing `2023-MOA-Design-Guidelines.pdf` |
+| `GUIDELINES_CACHE_PATH` | Yes | Absolute path to where runtime cache files are stored |
 | `UPLOADS_PATH` | Yes | Absolute path to where uploaded photos are stored |
 | `DATABASE_PATH` | Yes | Absolute path to the SQLite database file (e.g. `/path/to/data/hoa.db`) |
 | `NEXT_PUBLIC_APP_NAME` | No | Display name shown in the browser tab (default: `Murrayhill HOA Portal`) |
@@ -170,17 +204,21 @@ murrayhill-hoa/
 │   │   ├── guidelines/               # Sidebar + document viewer
 │   │   ├── report/                   # Anonymous report form
 │   │   └── admin/                    # Login, dashboard, submissions, reports
+│   ├── data/
+│   │   └── guidelines/               # Pre-extracted guideline text files (one .txt per category)
 │   └── lib/
 │       ├── claude.ts                 # Anthropic SDK wrapper + HOA system prompt
 │       ├── db.ts                     # SQLite connection + schema
 │       ├── auth.ts                   # JWT sign/verify
-│       ├── guidelines.ts             # .docx to HTML conversion (mammoth)
+│       ├── guidelines.ts             # Reads pre-extracted .txt files per category
 │       ├── storage.ts                # File upload helpers
 │       ├── validate.ts               # Image magic-byte validation + input limits
 │       ├── rateLimit.ts              # In-memory rate limiter
 │       └── middleware.ts             # Admin auth guard for API routes
+├── scripts/
+│   └── extract-guidelines.cjs        # Re-run when PDF is updated (see below)
 ├── uploads/                          # Uploaded photos (gitignored)
-├── guidelines-cache/                 # Converted guideline HTML (gitignored)
+├── guidelines-cache/                 # Runtime cache (gitignored)
 ├── data/                             # SQLite database (gitignored)
 ├── .env.local                        # Your local secrets (gitignored)
 └── .env.local.example                # Template — copy this to .env.local
@@ -288,7 +326,7 @@ The `GUIDELINES_CACHE_PATH` local disk cache won't work on serverless. Store con
 - **[Tailwind CSS](https://tailwindcss.com)** + **[shadcn/ui](https://ui.shadcn.com)**
 - **[Anthropic Claude](https://anthropic.com)** (`claude-sonnet-4-6`) — vision + chat
 - **[better-sqlite3](https://github.com/WiseLibs/better-sqlite3)** — local SQLite database
-- **[mammoth.js](https://github.com/mwilliamson/mammoth.js)** — `.docx` to HTML conversion
+- **[pdf-parse](https://www.npmjs.com/package/pdf-parse)** — used by `scripts/extract-guidelines.cjs` to extract text from the guidelines PDF (not used at runtime)
 
 ---
 

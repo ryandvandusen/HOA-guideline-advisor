@@ -1,9 +1,8 @@
 import { createHash } from 'crypto';
 import fs from 'fs';
-import path from 'path';
 import { getDb } from './db';
 import { ClaudeAnalysisResponse } from './claude';
-import { GUIDELINE_CATEGORIES } from './guidelines';
+import { getPdfPath } from './guidelines';
 
 // Bump this string whenever BASE_SYSTEM_PROMPT changes significantly,
 // which will invalidate all non-guideline-scoped cache entries.
@@ -18,16 +17,12 @@ function makeCacheKey(question: string, slug: string | null): string {
   return createHash('sha256').update(input).digest('hex');
 }
 
-// Returns the mtime of the guideline .docx as a string, used as the
-// "version" of that guideline. When the file changes, the version
-// changes and the cached entry is treated as stale and deleted.
+// Returns the mtime of the PDF as a string. When the PDF is replaced,
+// all guideline-scoped cache entries are treated as stale and deleted.
 function getGuidelineVersion(slug: string | null): string | null {
   if (!slug) return null;
-  const category = GUIDELINE_CATEGORIES.find((c) => c.slug === slug);
-  if (!category) return null;
-  const docxPath = path.join(process.env.GUIDELINES_PATH!, category.file);
   try {
-    return fs.statSync(docxPath).mtimeMs.toString();
+    return fs.statSync(getPdfPath()).mtimeMs.toString();
   } catch {
     return null;
   }

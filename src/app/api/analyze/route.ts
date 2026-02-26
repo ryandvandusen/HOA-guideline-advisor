@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     let guidelineContext: string | undefined;
     if (guidelineSlug) {
       const category = GUIDELINE_CATEGORIES.find((c) => c.slug === guidelineSlug)!;
-      const text = await getGuidelinePlainText(guidelineSlug);
+      const text = getGuidelinePlainText(guidelineSlug);
       if (text) {
         guidelineContext = `FULL GUIDELINE TEXT — ${category.label}:\n\n${text}`;
       }
