@@ -41,6 +41,15 @@ function initSchema(db: Database.Database) {
       admin_notes TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE IF NOT EXISTS question_cache (
+      cache_key TEXT PRIMARY KEY,
+      guideline_version TEXT,
+      response TEXT NOT NULL,
+      hit_count INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      last_hit_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
   `);
 
   // Migration: add category column to existing violation_reports tables

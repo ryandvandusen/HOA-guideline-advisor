@@ -188,17 +188,6 @@ export function ComplianceChat() {
           </div>
         )}
 
-        {submissionId && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="w-full text-gray-500"
-          >
-            <RotateCcw size={14} className="mr-2" />
-            Start New Check
-          </Button>
-        )}
       </div>
 
       {/* Right column: intro cards + chat + controls */}
@@ -319,17 +308,15 @@ export function ComplianceChat() {
           </Button>
         </div>
         {submissionId && !isLoading && (
-          <div className="flex items-center justify-center gap-1.5">
-            <RotateCcw size={11} className="text-gray-400" />
-            <button
-              onClick={handleReset}
-              className="text-xs text-gray-400 hover:text-blue-600 transition-colors"
-            >
-              Start a new conversation
-            </button>
-            <span className="text-gray-300 text-xs">·</span>
-            <span className="text-xs text-gray-400">Change guideline category</span>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleReset}
+            className="w-full text-gray-500"
+          >
+            <RotateCcw size={14} className="mr-2" />
+            Start New Check
+          </Button>
         )}
         <p className="text-xs text-gray-400 text-center">
           This is a preliminary AI assessment only. Contact the ARC for official determinations.

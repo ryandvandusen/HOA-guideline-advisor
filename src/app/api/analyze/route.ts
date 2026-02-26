@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { getDb } from '@/lib/db';
 import { analyzePhoto, analyzeTextQuestion } from '@/lib/claude';
+import { getCachedResponse, setCachedResponse } from '@/lib/cache';
 import { saveUploadedFile } from '@/lib/storage';
 import { getGuidelinePlainText, GUIDELINE_CATEGORIES } from '@/lib/guidelines';
 import { validateImage, LIMITS, truncate } from '@/lib/validate';
@@ -68,13 +69,21 @@ export async function POST(req: NextRequest) {
       if (!message) {
         return NextResponse.json({ error: 'A message or image is required.' }, { status: 400 });
       }
-      const result = await analyzeTextQuestion(message, guidelineContext);
-      // Force inconclusive status and clear visual-only fields for text-only sessions
-      analysis = {
-        ...result,
-        compliance_status: 'inconclusive' as const,
-        issues: [],
-      };
+
+      // Check cache before calling Claude
+      const cached = getCachedResponse(message, guidelineSlug);
+      if (cached) {
+        analysis = cached;
+      } else {
+        const result = await analyzeTextQuestion(message, guidelineContext);
+        // Force inconclusive status and clear visual-only fields for text-only sessions
+        analysis = {
+          ...result,
+          compliance_status: 'inconclusive' as const,
+          issues: [],
+        };
+        setCachedResponse(message, guidelineSlug, analysis);
+      }
     }
 
     // Persist to database
