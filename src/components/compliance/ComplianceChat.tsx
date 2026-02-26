@@ -80,10 +80,10 @@ export function ComplianceChat() {
 
     try {
       if (!submissionId) {
-        // First message: send image + optional text + optional guideline context
+        // First message: send image (if any) + text + optional guideline context
         const form = new FormData();
-        form.append('image', uploadedFile!);
-        form.append('message', trimmed || 'Please analyze this photo of my property for HOA compliance.');
+        if (uploadedFile) form.append('image', uploadedFile);
+        form.append('message', trimmed || (uploadedFile ? 'Please analyze this photo of my property for HOA compliance.' : ''));
         if (selectedSlug) form.append('guidelineSlug', selectedSlug);
 
         const res = await fetch('/api/analyze', { method: 'POST', body: form });
