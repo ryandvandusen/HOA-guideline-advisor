@@ -35,10 +35,16 @@ export function ComplianceChat() {
   }, [messages]);
 
   // Load guideline categories for the dropdown
+  // Exclude procedural/non-visual docs that aren't checkable from a photo
+  const EXCLUDE_FROM_DROPDOWN = new Set(['intro', 'general', 'review-process', 'arc-charter']);
+
   useEffect(() => {
     fetch('/api/guidelines')
       .then((r) => r.json())
-      .then((data) => setCategories(data.categories || []))
+      .then((data) => {
+        const all: GuidelineCategory[] = data.categories || [];
+        setCategories(all.filter((c) => !EXCLUDE_FROM_DROPDOWN.has(c.slug)));
+      })
       .catch(console.error);
   }, []);
 
@@ -68,7 +74,7 @@ export function ComplianceChat() {
   async function handleSubmit() {
     const trimmed = input.trim();
     if (isLoading) return;
-    if (!submissionId && !uploadedFile) return;
+    if (!submissionId && !uploadedFile && !trimmed) return;
     setError(null);
     setIsLoading(true);
 
@@ -126,7 +132,7 @@ export function ComplianceChat() {
 
   const canSubmit =
     !isLoading &&
-    (submissionId ? input.trim().length > 0 : !!uploadedFile);
+    (submissionId ? input.trim().length > 0 : input.trim().length > 0 || !!uploadedFile);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -209,25 +215,14 @@ export function ComplianceChat() {
       <div className="lg:col-span-2 flex flex-col gap-3">
         <div className="bg-white rounded-xl border border-gray-200 p-4 min-h-[420px] flex flex-col gap-3 overflow-y-auto">
           {messages.length === 0 && (
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-8">
-              <div className="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  className="w-7 h-7 text-blue-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-                </svg>
-              </div>
-              <p className="text-gray-600 font-medium text-sm">Upload a photo to get started</p>
-              <p className="text-gray-400 text-xs mt-1 max-w-xs">
-                Upload a photo of your property and our AI will check it against Murrayhill HOA guidelines.
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-8 text-gray-400">
+              <p className="text-sm font-medium text-gray-500">
+                {uploadedFile ? 'Ready — hit Send to analyze your photo.' : 'Ask a question or upload a photo to get started.'}
+              </p>
+              <p className="text-xs mt-1 max-w-xs">
+                {uploadedFile
+                  ? 'You can also type a specific question before sending.'
+                  : 'You can ask about HOA guidelines directly, or upload a photo of your property for a visual compliance check.'}
               </p>
             </div>
           )}
@@ -257,8 +252,10 @@ export function ComplianceChat() {
             onChange={(e) => setInput(e.target.value)}
             placeholder={
               submissionId
-                ? 'Ask a follow-up question about your property...'
-                : 'Optional: describe your property or ask a specific question...'
+                ? 'Ask a follow-up question…'
+                : uploadedFile
+                ? 'Optional: describe your property or ask a specific question…'
+                : 'Ask a question about HOA guidelines, or upload a photo for a compliance check…'
             }
             className="resize-none"
             rows={2}

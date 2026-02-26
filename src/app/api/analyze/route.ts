@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { getDb } from '@/lib/db';
-import { analyzePhoto } from '@/lib/claude';
+import { analyzePhoto, continueChat } from '@/lib/claude';
 import { saveUploadedFile } from '@/lib/storage';
 import { getGuidelinePlainText, GUIDELINE_CATEGORIES } from '@/lib/guidelines';
 import { validateImage, LIMITS, truncate } from '@/lib/validate';
@@ -29,16 +29,6 @@ export async function POST(req: NextRequest) {
     const rawMessage = (formData.get('message') as string) || '';
     const rawSlug = (formData.get('guidelineSlug') as string) || null;
 
-    if (!image) {
-      return NextResponse.json({ error: 'Image is required.' }, { status: 400 });
-    }
-
-    // Server-side image validation (magic bytes + size)
-    const validation = await validateImage(image);
-    if (!validation.ok) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
-    }
-
     // Sanitize text inputs
     const message = truncate(rawMessage, LIMITS.message);
 
@@ -55,19 +45,41 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Save image using server-validated MIME type (not client-supplied)
-    const { filePath } = await saveUploadedFile(image, 'submissions', validation.mime);
-
-    // Convert to base64 for Claude
-    const buffer = Buffer.from(await image.arrayBuffer());
-    const imageBase64 = buffer.toString('base64');
-
-    // Run Claude vision analysis
-    const analysis = await analyzePhoto(imageBase64, validation.mime, message, guidelineContext);
-
-    // Persist to database
     const db = getDb();
     const id = randomUUID();
+    let analysis;
+    let filePath: string | null = null;
+
+    if (image) {
+      // Photo submission: validate, save, run vision analysis
+      const validation = await validateImage(image);
+      if (!validation.ok) {
+        return NextResponse.json({ error: validation.error }, { status: 400 });
+      }
+
+      const saved = await saveUploadedFile(image, 'submissions', validation.mime);
+      filePath = saved.filePath;
+
+      const buffer = Buffer.from(await image.arrayBuffer());
+      const imageBase64 = buffer.toString('base64');
+      analysis = await analyzePhoto(imageBase64, validation.mime, message, guidelineContext);
+    } else {
+      // Text-only question: no photo required
+      if (!message) {
+        return NextResponse.json({ error: 'A message or image is required.' }, { status: 400 });
+      }
+      const reply = await continueChat([], message, guidelineContext);
+      analysis = {
+        compliance_status: 'inconclusive' as const,
+        summary: '',
+        issues: [] as Array<{ element: string; status: string; detail: string }>,
+        recommendations: [] as string[],
+        not_assessed: [] as string[],
+        message: reply,
+      };
+    }
+
+    // Persist to database
     const initialMessages = JSON.stringify([
       { role: 'user', content: message || 'Please analyze this photo for HOA compliance.' },
       { role: 'assistant', content: analysis.message },
