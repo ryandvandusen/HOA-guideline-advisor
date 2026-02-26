@@ -31,6 +31,7 @@ export function ComplianceChat() {
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [photoKey, setPhotoKey] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export function ComplianceChat() {
     setRecommendations([]);
     setError(null);
     setSelectedSlug('');
+    setPhotoKey((k) => k + 1); // force PhotoUploader to remount and clear file input
   }
 
   async function handleSubmit() {
@@ -131,7 +133,9 @@ export function ComplianceChat() {
 
   const canSubmit =
     !isLoading &&
-    (submissionId ? input.trim().length > 0 : input.trim().length > 0 || !!uploadedFile);
+    (submissionId
+      ? input.trim().length > 0
+      : (input.trim().length > 0 || !!uploadedFile) && !!selectedSlug);
 
   const showIntro = !submissionId && messages.length === 0;
 
@@ -151,6 +155,7 @@ export function ComplianceChat() {
         )}
 
         <PhotoUploader
+          key={photoKey}
           onFileSelect={handleFileSelect}
           preview={uploadedPreview}
           disabled={!!submissionId}
@@ -252,14 +257,11 @@ export function ComplianceChat() {
         {!submissionId && categories.length > 0 && (
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Guideline Category{' '}
-              <span className="text-gray-400 font-normal normal-case">
-                (optional — for more precise answers)
-              </span>
+              Guideline Category <span className="text-red-400">*</span>
             </label>
             <Select value={selectedSlug} onValueChange={setSelectedSlug}>
               <SelectTrigger className="w-full text-sm">
-                <SelectValue placeholder="Select a category to focus the analysis…" />
+                <SelectValue placeholder="Select a guideline category to continue…" />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
@@ -269,11 +271,6 @@ export function ComplianceChat() {
                 ))}
               </SelectContent>
             </Select>
-            {selectedSlug && (
-              <p className="text-xs text-blue-600 mt-1">
-                Full guideline text will be included for a more precise response.
-              </p>
-            )}
           </div>
         )}
 
