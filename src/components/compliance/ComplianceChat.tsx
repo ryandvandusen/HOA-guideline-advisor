@@ -149,7 +149,7 @@ export function ComplianceChat() {
               Upload a Photo <span className="font-normal text-gray-400 normal-case">(optional)</span>
             </p>
             <p className="text-xs text-gray-400 mb-2">
-              For a visual compliance check of your property's exterior.
+              For a visual compliance check of your property&apos;s exterior.
             </p>
           </div>
         )}
@@ -207,13 +207,13 @@ export function ComplianceChat() {
                 Ask about HOA rules before you start — no photo needed. Just type your question below.
               </p>
               <p className="text-xs text-blue-400 mt-2 italic">
-                e.g. "Can I paint my house olive green?" or "What fence materials are allowed?"
+                e.g. &quot;Can I paint my house olive green?&quot; or &quot;What fence materials are allowed?&quot;
               </p>
             </div>
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
               <p className="text-sm font-semibold text-gray-700 mb-1">Checking your property?</p>
               <p className="text-xs text-gray-500 leading-relaxed">
-                Upload a photo of your home's exterior from the left panel for a visual compliance check.
+                Upload a photo of your home&apos;s exterior from the left panel for a visual compliance check.
               </p>
               <p className="text-xs text-gray-400 mt-2 italic">
                 e.g. fencing, paint color, landscaping, roofing, signs
