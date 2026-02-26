@@ -136,7 +136,7 @@ export type ClaudeAnalysisResponse = {
   message: string;
 };
 
-function parseClaudeJson(raw: string): ClaudeAnalysisResponse {
+function parseClaudeJson(raw: string): ClaudeAnalysisResponse | null {
   // Strip markdown code fences if present
   const cleaned = raw
     .replace(/^```json\s*/i, '')
@@ -144,7 +144,11 @@ function parseClaudeJson(raw: string): ClaudeAnalysisResponse {
     .replace(/\s*```\s*$/i, '')
     .trim();
 
-  return JSON.parse(cleaned) as ClaudeAnalysisResponse;
+  try {
+    return JSON.parse(cleaned) as ClaudeAnalysisResponse;
+  } catch {
+    return null;
+  }
 }
 
 export async function analyzePhoto(
@@ -191,7 +195,9 @@ export async function analyzePhoto(
   const rawText =
     response.content[0].type === 'text' ? response.content[0].text : '{}';
 
-  return parseClaudeJson(rawText);
+  const parsed = parseClaudeJson(rawText);
+  if (!parsed) throw new Error('Claude returned non-JSON response for photo analysis');
+  return parsed;
 }
 
 export async function analyzeTextQuestion(
@@ -210,8 +216,20 @@ export async function analyzeTextQuestion(
   });
 
   const rawText = response.content[0].type === 'text' ? response.content[0].text : '{}';
-  return parseClaudeJson(rawText);
+  const parsed = parseClaudeJson(rawText);
+  if (!parsed) throw new Error('Claude returned non-JSON response for text analysis');
+  return parsed;
 }
+
+const CHAT_SYSTEM_PROMPT = `
+You are the Murrayhill HOA Compliance Assistant — a helpful, knowledgeable, and friendly guide for homeowners navigating HOA architectural guidelines.
+
+${VISUAL_COMPLIANCE_RULES}
+
+You are continuing a conversation with a homeowner about their property's HOA compliance. Answer their follow-up questions in plain, conversational language. Be specific, helpful, and encouraging. Do NOT respond with JSON — just write a natural reply of 2-5 sentences.
+
+Always remind homeowners that this is a preliminary AI assessment; only an official ARC inspection is definitive.
+`.trim();
 
 export async function continueChat(
   history: ChatMessage[],
@@ -219,8 +237,8 @@ export async function continueChat(
   additionalContext?: string
 ): Promise<string> {
   const systemPrompt = additionalContext
-    ? `${BASE_SYSTEM_PROMPT}\n\nADDITIONAL GUIDELINE CONTEXT FOR THIS RESPONSE:\n${additionalContext}`
-    : BASE_SYSTEM_PROMPT;
+    ? `${CHAT_SYSTEM_PROMPT}\n\nADDITIONAL GUIDELINE CONTEXT FOR THIS RESPONSE:\n${additionalContext}`
+    : CHAT_SYSTEM_PROMPT;
 
   const messages = [
     ...history.map((m) => ({
@@ -237,7 +255,5 @@ export async function continueChat(
     messages,
   });
 
-  const rawText = response.content[0].type === 'text' ? response.content[0].text : '{}';
-  const parsed = parseClaudeJson(rawText);
-  return parsed.message || rawText;
+  return response.content[0].type === 'text' ? response.content[0].text : '';
 }
