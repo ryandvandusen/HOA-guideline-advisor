@@ -318,6 +318,19 @@ export function ComplianceChat() {
             <Send size={16} />
           </Button>
         </div>
+        {submissionId && !isLoading && (
+          <div className="flex items-center justify-center gap-1.5">
+            <RotateCcw size={11} className="text-gray-400" />
+            <button
+              onClick={handleReset}
+              className="text-xs text-gray-400 hover:text-blue-600 transition-colors"
+            >
+              Start a new conversation
+            </button>
+            <span className="text-gray-300 text-xs">·</span>
+            <span className="text-xs text-gray-400">Change guideline category</span>
+          </div>
+        )}
         <p className="text-xs text-gray-400 text-center">
           This is a preliminary AI assessment only. Contact the ARC for official determinations.
         </p>
