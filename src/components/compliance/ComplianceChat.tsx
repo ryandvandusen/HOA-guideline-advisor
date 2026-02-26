@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { PhotoUploader } from './PhotoUploader';
 import { ChatMessage } from './ChatMessage';
 import { ComplianceBadge } from './ComplianceBadge';
 import { IssuesList } from './IssuesList';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Send, RotateCcw } from 'lucide-react';
+import { Send, RotateCcw, ImagePlus, X } from 'lucide-react';
 import { ClaudeAnalysisResponse } from '@/lib/claude';
 import { GuidelineCategory } from '@/types/guideline';
 
@@ -33,6 +32,7 @@ export function ComplianceChat() {
   const [error, setError] = useState<string | null>(null);
   const [photoKey, setPhotoKey] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -50,14 +50,20 @@ export function ComplianceChat() {
       .catch(console.error);
   }, []);
 
-  function handleFileSelect(file: File, preview: string) {
-    if (!file.name) {
-      setUploadedFile(null);
-      setUploadedPreview(null);
-      return;
-    }
-    setUploadedFile(file);
-    setUploadedPreview(preview);
+  function handleFile(file: File) {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setUploadedFile(file);
+      setUploadedPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handleRemovePhoto() {
+    setUploadedFile(null);
+    setUploadedPreview(null);
+    setPhotoKey((k) => k + 1);
   }
 
   function handleReset() {
@@ -71,7 +77,7 @@ export function ComplianceChat() {
     setRecommendations([]);
     setError(null);
     setSelectedSlug('');
-    setPhotoKey((k) => k + 1); // force PhotoUploader to remount and clear file input
+    setPhotoKey((k) => k + 1);
   }
 
   async function handleSubmit() {
@@ -83,7 +89,6 @@ export function ComplianceChat() {
 
     try {
       if (!submissionId) {
-        // First message: send image (if any) + text + optional guideline context
         const form = new FormData();
         if (uploadedFile) form.append('image', uploadedFile);
         form.append('message', trimmed || (uploadedFile ? 'Please analyze this photo of my property for HOA compliance.' : ''));
@@ -101,14 +106,10 @@ export function ComplianceChat() {
         setIssues(data.analysis.issues || []);
         setRecommendations(data.analysis.recommendations || []);
         setMessages([
-          {
-            role: 'user',
-            content: trimmed || 'Please analyze this photo of my property for HOA compliance.',
-          },
+          { role: 'user', content: trimmed || 'Please analyze this photo of my property for HOA compliance.' },
           { role: 'assistant', content: data.analysis.message },
         ]);
       } else {
-        // Follow-up: text only
         if (!trimmed) return;
         setMessages((prev) => [...prev, { role: 'user', content: trimmed }]);
 
@@ -139,188 +140,187 @@ export function ComplianceChat() {
       ? input.trim().length > 0
       : (input.trim().length > 0 || !!uploadedFile) && !!selectedSlug);
 
-  const showIntro = !submissionId && messages.length === 0;
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left column: photo upload + results */}
-      <div className="lg:col-span-1 space-y-4">
-        {!submissionId && (
-          <div>
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-              Upload a Photo <span className="font-normal text-gray-400 normal-case">(optional)</span>
-            </p>
-            <p className="text-xs text-gray-400 mb-2">
-              For a visual compliance check of your property&apos;s exterior.
-            </p>
-          </div>
-        )}
+    <div className="flex flex-col gap-3 max-w-2xl mx-auto">
 
-        <PhotoUploader
-          key={photoKey}
-          onFileSelect={handleFileSelect}
-          preview={uploadedPreview}
-          disabled={!!submissionId}
-        />
-
-        {/* After submission: selected guideline context label */}
-        {submissionId && selectedSlug && (
-          <div className="text-xs text-gray-400">
-            Analyzed against:{' '}
-            <span className="font-medium text-gray-600">
-              {categories.find((c) => c.slug === selectedSlug)?.label}
-            </span>
-          </div>
-        )}
-
-        {/* Compliance badge — only for photo analyses (not text-only) */}
-        {complianceStatus && complianceStatus !== 'inconclusive' && (
-          <ComplianceBadge status={complianceStatus} />
-        )}
-
-        {issues.length > 0 && <IssuesList issues={issues} />}
-
-        {recommendations.length > 0 && (
-          <div className="space-y-1">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Recommendations
-            </h3>
-            <ul className="space-y-1">
-              {recommendations.map((rec, i) => (
-                <li key={i} className="text-xs text-gray-600 bg-blue-50 rounded px-3 py-2 leading-relaxed">
-                  {rec}
-                </li>
+      {/* Guideline category — required before first submission */}
+      {!submissionId && categories.length > 0 && (
+        <div>
+          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+            Guideline Category <span className="text-red-400">*</span>
+          </label>
+          <Select value={selectedSlug} onValueChange={setSelectedSlug}>
+            <SelectTrigger className="w-full text-sm">
+              <SelectValue placeholder="Select a guideline category to continue…" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.slug} value={cat.slug}>
+                  {cat.label}
+                </SelectItem>
               ))}
-            </ul>
-          </div>
-        )}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
-      </div>
+      {/* After submission: context label */}
+      {submissionId && selectedSlug && (
+        <div className="text-xs text-gray-400">
+          Analyzed against:{' '}
+          <span className="font-medium text-gray-600">
+            {categories.find((c) => c.slug === selectedSlug)?.label}
+          </span>
+        </div>
+      )}
 
-      {/* Right column: intro cards + chat + controls */}
-      <div className="lg:col-span-2 flex flex-col gap-3">
-
-        {/* Two-path intro — only shown before any interaction */}
-        {showIntro && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
-              <p className="text-sm font-semibold text-blue-800 mb-1">Planning a project?</p>
-              <p className="text-xs text-blue-600 leading-relaxed">
-                Ask about HOA rules before you start — no photo needed. Just type your question below.
-              </p>
-              <p className="text-xs text-blue-400 mt-2 italic">
+      {/* Chat messages */}
+      <div className="bg-white rounded-xl border border-gray-200 p-4 min-h-[380px] flex flex-col gap-3 overflow-y-auto">
+        {messages.length === 0 && (
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-10 gap-2">
+            <p className="text-sm font-medium text-gray-500">
+              {selectedSlug
+                ? uploadedFile
+                  ? 'Photo ready — add a question or hit Send to analyze.'
+                  : 'Ask a question, or attach a photo for a visual check.'
+                : 'Select a guideline category above to get started.'}
+            </p>
+            {selectedSlug && !uploadedFile && (
+              <p className="text-xs text-gray-400 max-w-sm">
                 e.g. &quot;Can I paint my house olive green?&quot; or &quot;What fence materials are allowed?&quot;
               </p>
+            )}
+          </div>
+        )}
+        {messages.map((m, i) => (
+          <ChatMessage key={i} role={m.role} content={m.content} />
+        ))}
+        {isLoading && (
+          <div className="flex gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
             </div>
-            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-              <p className="text-sm font-semibold text-gray-700 mb-1">Checking your property?</p>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                Upload a photo of your home&apos;s exterior from the left panel for a visual compliance check.
-              </p>
-              <p className="text-xs text-gray-400 mt-2 italic">
-                e.g. fencing, paint color, landscaping, roofing, signs
-              </p>
+            <div className="bg-blue-50 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-500 italic">
+              Analyzing...
             </div>
           </div>
         )}
-
-        {/* Chat messages */}
-        <div className="bg-white rounded-xl border border-gray-200 p-4 min-h-[340px] flex flex-col gap-3 overflow-y-auto">
-          {messages.length === 0 && (
-            <div className="flex-1 flex items-center justify-center text-center py-8">
-              <p className="text-sm text-gray-400">
-                {uploadedFile
-                  ? 'Photo ready — add a question or hit Send to analyze.'
-                  : 'Your conversation will appear here.'}
-              </p>
-            </div>
-          )}
-          {messages.map((m, i) => (
-            <ChatMessage key={i} role={m.role} content={m.content} />
-          ))}
-          {isLoading && (
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              </div>
-              <div className="bg-blue-50 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-500 italic">
-                Analyzing...
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {error && (
-          <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>
-        )}
-
-        {/* Guideline category selector — in right column, visible before submission */}
-        {!submissionId && categories.length > 0 && (
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Guideline Category <span className="text-red-400">*</span>
-            </label>
-            <Select value={selectedSlug} onValueChange={setSelectedSlug}>
-              <SelectTrigger className="w-full text-sm">
-                <SelectValue placeholder="Select a guideline category to continue…" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.slug} value={cat.slug}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        {/* Chat input */}
-        <div className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={
-              submissionId
-                ? 'Ask a follow-up question…'
-                : uploadedFile
-                ? 'Optional: describe your property or ask a specific question…'
-                : 'Ask a question about HOA guidelines, or upload a photo for a compliance check…'
-            }
-            className="resize-none"
-            rows={2}
-            disabled={isLoading}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit();
-              }
-            }}
-          />
-          <Button
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className="self-end px-4"
-          >
-            <Send size={16} />
-          </Button>
-        </div>
-        {submissionId && !isLoading && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleReset}
-            className="w-full text-gray-500"
-          >
-            <RotateCcw size={14} className="mr-2" />
-            Start New Check
-          </Button>
-        )}
-        <p className="text-xs text-gray-400 text-center">
-          This is a preliminary AI assessment only. Contact the ARC for official determinations.
-        </p>
+        <div ref={messagesEndRef} />
       </div>
+
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>
+      )}
+
+      {/* Photo thumbnail preview */}
+      {uploadedPreview && !submissionId && (
+        <div className="flex items-center gap-2">
+          <div className="relative inline-block">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={uploadedPreview}
+              alt="Attached photo"
+              className="h-16 w-16 object-cover rounded-lg border border-gray-200"
+            />
+            <button
+              onClick={handleRemovePhoto}
+              className="absolute -top-1.5 -right-1.5 bg-white border border-gray-200 rounded-full p-0.5 shadow-sm hover:bg-gray-50"
+              aria-label="Remove photo"
+            >
+              <X size={12} className="text-gray-500" />
+            </button>
+          </div>
+          <p className="text-xs text-gray-500">Photo attached</p>
+        </div>
+      )}
+
+      {/* Input row */}
+      <div className="flex gap-2 items-end">
+        {!submissionId && (
+          <>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading}
+              title="Attach a photo"
+              className={`flex-shrink-0 self-end p-2.5 rounded-lg border transition-colors ${
+                uploadedFile
+                  ? 'border-blue-300 bg-blue-50 text-blue-600'
+                  : 'border-gray-300 bg-white text-gray-400 hover:text-gray-600 hover:border-gray-400'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <ImagePlus size={18} />
+            </button>
+            <input
+              key={photoKey}
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={isLoading}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+              }}
+            />
+          </>
+        )}
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder={
+            submissionId
+              ? 'Ask a follow-up question…'
+              : selectedSlug
+              ? 'Ask a question, or attach a photo for a visual check…'
+              : 'Select a category above, then ask your question…'
+          }
+          className="resize-none"
+          rows={2}
+          disabled={isLoading}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit();
+            }
+          }}
+        />
+        <Button onClick={handleSubmit} disabled={!canSubmit} className="self-end px-4">
+          <Send size={16} />
+        </Button>
+      </div>
+
+      {submissionId && !isLoading && (
+        <Button variant="outline" size="sm" onClick={handleReset} className="w-full text-gray-500">
+          <RotateCcw size={14} className="mr-2" />
+          Start New Check
+        </Button>
+      )}
+
+      {/* Results — shown after photo submission */}
+      {complianceStatus && complianceStatus !== 'inconclusive' && (
+        <ComplianceBadge status={complianceStatus} />
+      )}
+
+      {issues.length > 0 && <IssuesList issues={issues} />}
+
+      {recommendations.length > 0 && (
+        <div className="space-y-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Recommendations
+          </h3>
+          <ul className="space-y-1">
+            {recommendations.map((rec, i) => (
+              <li key={i} className="text-xs text-gray-600 bg-blue-50 rounded px-3 py-2 leading-relaxed">
+                {rec}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="text-xs text-gray-400 text-center">
+        This is a preliminary AI assessment only. Contact the ARC for official determinations.
+      </p>
     </div>
   );
 }
