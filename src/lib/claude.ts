@@ -194,6 +194,25 @@ export async function analyzePhoto(
   return parseClaudeJson(rawText);
 }
 
+export async function analyzeTextQuestion(
+  userMessage: string,
+  guidelineContext?: string
+): Promise<ClaudeAnalysisResponse> {
+  const systemPrompt = guidelineContext
+    ? `${BASE_SYSTEM_PROMPT}\n\nFULL GUIDELINE CONTEXT FOR THIS REQUEST:\n${guidelineContext}`
+    : BASE_SYSTEM_PROMPT;
+
+  const response = await client.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2000,
+    system: systemPrompt,
+    messages: [{ role: 'user', content: userMessage }],
+  });
+
+  const rawText = response.content[0].type === 'text' ? response.content[0].text : '{}';
+  return parseClaudeJson(rawText);
+}
+
 export async function continueChat(
   history: ChatMessage[],
   newMessage: string,

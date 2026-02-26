@@ -1,20 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CheckCircle, Upload } from 'lucide-react';
+import { GuidelineCategory } from '@/types/guideline';
+
+// Procedural/non-visual docs — not relevant as violation categories
+const EXCLUDE_FROM_REPORT = new Set(['intro', 'general', 'review-process', 'arc-charter', 'new-construction', 'moa-design']);
 
 export function ViolationReportForm() {
   const [address, setAddress] = useState('');
+  const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [categories, setCategories] = useState<GuidelineCategory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/guidelines')
+      .then((r) => r.json())
+      .then((data) => {
+        const all: GuidelineCategory[] = data.categories || [];
+        setCategories(all.filter((c) => !EXCLUDE_FROM_REPORT.has(c.slug)));
+      })
+      .catch(console.error);
+  }, []);
 
   function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -36,6 +53,7 @@ export function ViolationReportForm() {
       const form = new FormData();
       form.append('address', address);
       form.append('description', description);
+      if (category) form.append('category', category);
       if (notes) form.append('notes', notes);
       if (photo) form.append('photo', photo);
 
@@ -68,6 +86,7 @@ export function ViolationReportForm() {
           onClick={() => {
             setSuccess(false);
             setAddress('');
+            setCategory('');
             setDescription('');
             setNotes('');
             setPhoto(null);
@@ -99,6 +118,25 @@ export function ViolationReportForm() {
             placeholder="123 Murrayhill Way, Beaverton, OR"
             required
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Violation Category <span className="text-gray-400 font-normal">(optional)</span>
+          </label>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a category…" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.slug} value={cat.slug}>
+                  {cat.label}
+                </SelectItem>
+              ))}
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div>

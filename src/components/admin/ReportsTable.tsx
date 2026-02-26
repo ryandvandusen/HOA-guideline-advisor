@@ -94,6 +94,11 @@ export function ReportsTable({ token, onUnauthorized }: Props) {
                   {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
                 </span>
                 <span className="text-sm font-medium text-gray-700 truncate">{report.property_address}</span>
+                {report.category && (
+                  <span className="flex-shrink-0 text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 capitalize">
+                    {report.category.replace(/-/g, ' ')}
+                  </span>
+                )}
                 <span className="text-xs text-gray-400 flex-shrink-0">
                   {new Date(report.created_at).toLocaleDateString()}
                 </span>

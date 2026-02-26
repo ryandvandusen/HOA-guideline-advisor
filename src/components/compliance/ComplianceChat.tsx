@@ -15,6 +15,9 @@ import { GuidelineCategory } from '@/types/guideline';
 type Message = { role: 'user' | 'assistant'; content: string };
 type ComplianceStatus = 'compliant' | 'needs_attention' | 'violation' | 'inconclusive' | 'pending';
 
+// Procedural docs that aren't visually checkable — exclude from dropdown
+const EXCLUDE_FROM_DROPDOWN = new Set(['intro', 'general', 'review-process', 'arc-charter']);
+
 export function ComplianceChat() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadedPreview, setUploadedPreview] = useState<string | null>(null);
@@ -34,10 +37,6 @@ export function ComplianceChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load guideline categories for the dropdown
-  // Exclude procedural/non-visual docs that aren't checkable from a photo
-  const EXCLUDE_FROM_DROPDOWN = new Set(['intro', 'general', 'review-process', 'arc-charter']);
-
   useEffect(() => {
     fetch('/api/guidelines')
       .then((r) => r.json())
@@ -50,7 +49,6 @@ export function ComplianceChat() {
 
   function handleFileSelect(file: File, preview: string) {
     if (!file.name) {
-      // Clear/reset
       setUploadedFile(null);
       setUploadedPreview(null);
       return;
@@ -69,6 +67,7 @@ export function ComplianceChat() {
     setIssues([]);
     setRecommendations([]);
     setError(null);
+    setSelectedSlug('');
   }
 
   async function handleSubmit() {
@@ -134,50 +133,41 @@ export function ComplianceChat() {
     !isLoading &&
     (submissionId ? input.trim().length > 0 : input.trim().length > 0 || !!uploadedFile);
 
+  const showIntro = !submissionId && messages.length === 0;
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Left column: photo + results */}
+      {/* Left column: photo upload + results */}
       <div className="lg:col-span-1 space-y-4">
+        {!submissionId && (
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+              Upload a Photo <span className="font-normal text-gray-400 normal-case">(optional)</span>
+            </p>
+            <p className="text-xs text-gray-400 mb-2">
+              For a visual compliance check of your property's exterior.
+            </p>
+          </div>
+        )}
+
         <PhotoUploader
           onFileSelect={handleFileSelect}
           preview={uploadedPreview}
           disabled={!!submissionId}
         />
 
-        {/* Guideline category selector — only shown before first analysis */}
-        {!submissionId && categories.length > 0 && (
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Relevant Guideline <span className="text-gray-400 font-normal normal-case">(optional)</span>
-            </label>
-            <Select value={selectedSlug} onValueChange={setSelectedSlug}>
-              <SelectTrigger className="w-full text-sm">
-                <SelectValue placeholder="Select a guideline category…" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (
-                  <SelectItem key={cat.slug} value={cat.slug}>
-                    {cat.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedSlug && (
-              <p className="text-xs text-blue-600 mt-1">
-                Full guideline text will be included for a more precise analysis.
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Show selected guideline label after submission */}
+        {/* After submission: selected guideline context label */}
         {submissionId && selectedSlug && (
           <div className="text-xs text-gray-400">
-            Analyzed against: <span className="font-medium text-gray-600">{categories.find(c => c.slug === selectedSlug)?.label}</span>
+            Analyzed against:{' '}
+            <span className="font-medium text-gray-600">
+              {categories.find((c) => c.slug === selectedSlug)?.label}
+            </span>
           </div>
         )}
 
-        {complianceStatus && (
+        {/* Compliance badge — only for photo analyses (not text-only) */}
+        {complianceStatus && complianceStatus !== 'inconclusive' && (
           <ComplianceBadge status={complianceStatus} />
         )}
 
@@ -211,18 +201,41 @@ export function ComplianceChat() {
         )}
       </div>
 
-      {/* Right column: chat */}
+      {/* Right column: intro cards + chat + controls */}
       <div className="lg:col-span-2 flex flex-col gap-3">
-        <div className="bg-white rounded-xl border border-gray-200 p-4 min-h-[420px] flex flex-col gap-3 overflow-y-auto">
-          {messages.length === 0 && (
-            <div className="flex-1 flex flex-col items-center justify-center text-center py-8 text-gray-400">
-              <p className="text-sm font-medium text-gray-500">
-                {uploadedFile ? 'Ready — hit Send to analyze your photo.' : 'Ask a question or upload a photo to get started.'}
+
+        {/* Two-path intro — only shown before any interaction */}
+        {showIntro && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
+              <p className="text-sm font-semibold text-blue-800 mb-1">Planning a project?</p>
+              <p className="text-xs text-blue-600 leading-relaxed">
+                Ask about HOA rules before you start — no photo needed. Just type your question below.
               </p>
-              <p className="text-xs mt-1 max-w-xs">
+              <p className="text-xs text-blue-400 mt-2 italic">
+                e.g. "Can I paint my house olive green?" or "What fence materials are allowed?"
+              </p>
+            </div>
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+              <p className="text-sm font-semibold text-gray-700 mb-1">Checking your property?</p>
+              <p className="text-xs text-gray-500 leading-relaxed">
+                Upload a photo of your home's exterior from the left panel for a visual compliance check.
+              </p>
+              <p className="text-xs text-gray-400 mt-2 italic">
+                e.g. fencing, paint color, landscaping, roofing, signs
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Chat messages */}
+        <div className="bg-white rounded-xl border border-gray-200 p-4 min-h-[340px] flex flex-col gap-3 overflow-y-auto">
+          {messages.length === 0 && (
+            <div className="flex-1 flex items-center justify-center text-center py-8">
+              <p className="text-sm text-gray-400">
                 {uploadedFile
-                  ? 'You can also type a specific question before sending.'
-                  : 'You can ask about HOA guidelines directly, or upload a photo of your property for a visual compliance check.'}
+                  ? 'Photo ready — add a question or hit Send to analyze.'
+                  : 'Your conversation will appear here.'}
               </p>
             </div>
           )}
@@ -246,6 +259,36 @@ export function ComplianceChat() {
           <p className="text-sm text-red-600 bg-red-50 rounded px-3 py-2">{error}</p>
         )}
 
+        {/* Guideline category selector — in right column, visible before submission */}
+        {!submissionId && categories.length > 0 && (
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+              Guideline Category{' '}
+              <span className="text-gray-400 font-normal normal-case">
+                (optional — for more precise answers)
+              </span>
+            </label>
+            <Select value={selectedSlug} onValueChange={setSelectedSlug}>
+              <SelectTrigger className="w-full text-sm">
+                <SelectValue placeholder="Select a category to focus the analysis…" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.slug} value={cat.slug}>
+                    {cat.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedSlug && (
+              <p className="text-xs text-blue-600 mt-1">
+                Full guideline text will be included for a more precise response.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Chat input */}
         <div className="flex gap-2">
           <Textarea
             value={input}

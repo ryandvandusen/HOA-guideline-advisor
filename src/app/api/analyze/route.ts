@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
 import { getDb } from '@/lib/db';
-import { analyzePhoto, continueChat } from '@/lib/claude';
+import { analyzePhoto, analyzeTextQuestion } from '@/lib/claude';
 import { saveUploadedFile } from '@/lib/storage';
 import { getGuidelinePlainText, GUIDELINE_CATEGORIES } from '@/lib/guidelines';
 import { validateImage, LIMITS, truncate } from '@/lib/validate';
@@ -68,14 +68,12 @@ export async function POST(req: NextRequest) {
       if (!message) {
         return NextResponse.json({ error: 'A message or image is required.' }, { status: 400 });
       }
-      const reply = await continueChat([], message, guidelineContext);
+      const result = await analyzeTextQuestion(message, guidelineContext);
+      // Force inconclusive status and clear visual-only fields for text-only sessions
       analysis = {
+        ...result,
         compliance_status: 'inconclusive' as const,
-        summary: '',
-        issues: [] as Array<{ element: string; status: string; detail: string }>,
-        recommendations: [] as string[],
-        not_assessed: [] as string[],
-        message: reply,
+        issues: [],
       };
     }
 

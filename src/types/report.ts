@@ -6,6 +6,7 @@ export type ViolationReport = {
   description: string;
   photo_path: string | null;
   reporter_notes: string | null;
+  category: string | null;
   status: ReportStatus;
   admin_notes: string | null;
   created_at: string;

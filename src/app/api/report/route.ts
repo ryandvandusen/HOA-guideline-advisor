@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     const rawAddress = formData.get('address') as string;
     const rawDescription = formData.get('description') as string;
     const rawNotes = (formData.get('notes') as string) || '';
+    const rawCategory = (formData.get('category') as string) || '';
     const photo = formData.get('photo') as File | null;
 
     if (!rawAddress?.trim() || !rawDescription?.trim()) {
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
     const address = truncate(rawAddress.trim(), LIMITS.address);
     const description = truncate(rawDescription.trim(), LIMITS.description);
     const notes = rawNotes ? truncate(rawNotes.trim(), LIMITS.notes) : null;
+    const category = rawCategory.trim() || null;
 
     let photoPath: string | null = null;
     if (photo && photo.size > 0) {
@@ -38,9 +40,9 @@ export async function POST(req: NextRequest) {
     const id = randomUUID();
 
     db.prepare(`
-      INSERT INTO violation_reports (id, property_address, description, photo_path, reporter_notes)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(id, address, description, photoPath, notes);
+      INSERT INTO violation_reports (id, property_address, description, photo_path, reporter_notes, category)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(id, address, description, photoPath, notes, category);
 
     return NextResponse.json({ success: true, reportId: id });
   } catch (error) {

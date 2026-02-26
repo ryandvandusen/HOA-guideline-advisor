@@ -36,9 +36,17 @@ function initSchema(db: Database.Database) {
       description TEXT NOT NULL,
       photo_path TEXT,
       reporter_notes TEXT,
+      category TEXT,
       status TEXT DEFAULT 'pending',
       admin_notes TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  // Migration: add category column to existing violation_reports tables
+  try {
+    db.exec(`ALTER TABLE violation_reports ADD COLUMN category TEXT`);
+  } catch {
+    // Column already exists — ignore
+  }
 }
