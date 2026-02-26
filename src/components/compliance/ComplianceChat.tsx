@@ -148,11 +148,11 @@ export function ComplianceChat() {
       {!submissionId && categories.length > 0 && (
         <div>
           <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-            Guideline Category <span className="text-red-400">*</span>
+            Step 1 — Select a Guideline Category <span className="text-red-500">*</span>
           </label>
           <Select value={selectedSlug} onValueChange={setSelectedSlug}>
-            <SelectTrigger className="w-full text-sm">
-              <SelectValue placeholder="Select a guideline category to continue…" />
+            <SelectTrigger className={`w-full text-sm ${!selectedSlug ? 'border-blue-400 ring-1 ring-blue-300' : 'border-green-400'}`}>
+              <SelectValue placeholder="Choose a category to get started…" />
             </SelectTrigger>
             <SelectContent>
               {categories.map((cat) => (
@@ -162,6 +162,11 @@ export function ComplianceChat() {
               ))}
             </SelectContent>
           </Select>
+          {!selectedSlug && (
+            <p className="mt-1.5 text-xs text-blue-600">
+              Choose a category above to unlock the chat and photo check.
+            </p>
+          )}
         </div>
       )}
 
@@ -176,20 +181,32 @@ export function ComplianceChat() {
       )}
 
       {/* Chat messages */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4 min-h-[380px] flex flex-col gap-3 overflow-y-auto">
+      <div className={`bg-white rounded-xl border p-4 min-h-[380px] flex flex-col gap-3 overflow-y-auto transition-colors ${!submissionId && !selectedSlug ? 'border-gray-200 bg-gray-50' : 'border-gray-200'}`}>
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-10 gap-2">
-            <p className="text-sm font-medium text-gray-500">
-              {selectedSlug
-                ? uploadedFile
-                  ? 'Photo ready — add a question or hit Send to analyze.'
-                  : 'Ask a question, or attach a photo for a visual check.'
-                : 'Select a guideline category above to get started.'}
-            </p>
-            {selectedSlug && !uploadedFile && (
-              <p className="text-xs text-gray-400 max-w-sm">
-                e.g. &quot;Can I paint my house olive green?&quot; or &quot;What fence materials are allowed?&quot;
-              </p>
+            {!selectedSlug && !submissionId ? (
+              <>
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-1">
+                  <span className="text-blue-500 text-lg font-bold">1</span>
+                </div>
+                <p className="text-sm font-semibold text-gray-600">
+                  Select a category above to get started
+                </p>
+                <p className="text-xs text-gray-400 max-w-xs">
+                  Choose the guideline area you want to check — the chat will unlock once a category is selected.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-gray-500">
+                  {uploadedFile
+                    ? 'Photo ready — add a question or hit Send to analyze.'
+                    : 'Ask a question, or attach a photo for a visual check.'}
+                </p>
+                <p className="text-xs text-gray-400 max-w-sm">
+                  e.g. &quot;Can I paint my house olive green?&quot; or &quot;What fence materials are allowed?&quot;
+                </p>
+              </>
             )}
           </div>
         )}
@@ -241,13 +258,13 @@ export function ComplianceChat() {
           <>
             <button
               onClick={() => fileInputRef.current?.click()}
-              disabled={isLoading}
-              title="Attach a photo"
+              disabled={isLoading || !selectedSlug}
+              title={selectedSlug ? 'Attach a photo' : 'Select a category first'}
               className={`flex-shrink-0 self-end p-2.5 rounded-lg border transition-colors ${
                 uploadedFile
                   ? 'border-blue-300 bg-blue-50 text-blue-600'
                   : 'border-gray-300 bg-white text-gray-400 hover:text-gray-600 hover:border-gray-400'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
+              } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
               <ImagePlus size={18} />
             </button>
@@ -257,7 +274,7 @@ export function ComplianceChat() {
               type="file"
               accept="image/*"
               className="hidden"
-              disabled={isLoading}
+              disabled={isLoading || !selectedSlug}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) handleFile(file);
@@ -273,11 +290,11 @@ export function ComplianceChat() {
               ? 'Ask a follow-up question…'
               : selectedSlug
               ? 'Ask a question, or attach a photo for a visual check…'
-              : 'Select a category above, then ask your question…'
+              : 'Select a category above to unlock the chat…'
           }
-          className="resize-none"
+          className={`resize-none transition-opacity ${!submissionId && !selectedSlug ? 'opacity-50 cursor-not-allowed' : ''}`}
           rows={2}
-          disabled={isLoading}
+          disabled={isLoading || (!submissionId && !selectedSlug)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
