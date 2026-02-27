@@ -47,6 +47,16 @@ export default function HomePage() {
               <h2 className="text-lg font-semibold text-gray-800">Check Your Property</h2>
               <p className="text-sm text-gray-500 mt-1">
                 Upload a photo of your property and our AI assistant will check it against Murrayhill HOA guidelines. You can also ask follow-up questions.
+                For official guidelines and application forms for planned work,{' '}
+                <a
+                  href="https://www.murrayhillowners.com/committees/arc/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  visit the ARC page
+                </a>
+                .
               </p>
             </div>
             <ComplianceChat />
@@ -56,7 +66,16 @@ export default function HomePage() {
             <div className="mb-4">
               <h2 className="text-lg font-semibold text-gray-800">HOA Guidelines</h2>
               <p className="text-sm text-gray-500 mt-1">
-                Browse the full Murrayhill HOA Architectural Review Committee guidelines. Select a category from the sidebar to read the details.
+                Browse the full Murrayhill ARC Design Guidelines below. For specific guideline details and official application forms for planned work,{' '}
+                <a
+                  href="https://www.murrayhillowners.com/committees/arc/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  visit the ARC page on the Murrayhill Owners Association website
+                </a>
+                .
               </p>
             </div>
             <GuidelinesPanel />
