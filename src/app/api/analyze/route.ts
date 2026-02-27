@@ -5,7 +5,7 @@ import { analyzePhoto, analyzeTextQuestion } from '@/lib/claude';
 import { getCachedResponse, setCachedResponse } from '@/lib/cache';
 import { saveUploadedFile } from '@/lib/storage';
 import { getGuidelinePlainText, GUIDELINE_CATEGORIES } from '@/lib/guidelines';
-import { validateImage, LIMITS, truncate } from '@/lib/validate';
+import { validateImage, LIMITS, truncate, containsPromptInjection } from '@/lib/validate';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 export const maxDuration = 60;
@@ -32,6 +32,11 @@ export async function POST(req: NextRequest) {
 
     // Sanitize text inputs
     const message = truncate(rawMessage, LIMITS.message);
+
+    // Block prompt injection attempts
+    if (containsPromptInjection(message)) {
+      return NextResponse.json({ error: 'Message contains disallowed content.' }, { status: 400 });
+    }
 
     // Validate guidelineSlug is a known slug (prevent arbitrary string injection)
     const guidelineSlug = GUIDELINE_CATEGORIES.find((c) => c.slug === rawSlug)?.slug ?? null;

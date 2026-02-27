@@ -3,7 +3,7 @@ import { getDb } from '@/lib/db';
 import { continueChat } from '@/lib/claude';
 import { ChatMessage } from '@/types/submission';
 import { getGuidelinePlainText, GUIDELINE_CATEGORIES } from '@/lib/guidelines';
-import { LIMITS, truncate } from '@/lib/validate';
+import { LIMITS, truncate, containsPromptInjection } from '@/lib/validate';
 import { checkRateLimit } from '@/lib/rateLimit';
 
 export const maxDuration = 30;
@@ -32,6 +32,11 @@ export async function POST(req: NextRequest) {
     }
 
     const message = truncate(rawMessage.trim(), LIMITS.message);
+
+    // Block prompt injection attempts
+    if (containsPromptInjection(message)) {
+      return NextResponse.json({ error: 'Message contains disallowed content.' }, { status: 400 });
+    }
 
     const db = getDb();
     const submission = db

@@ -53,3 +53,25 @@ export const LIMITS = {
 export function truncate(value: string, max: number): string {
   return value.slice(0, max);
 }
+
+// ── Prompt injection detection ──────────────────────────────────────────────
+// Catches common attempts to override the AI system prompt.
+const INJECTION_PATTERNS: RegExp[] = [
+  /ignore\s+(all\s+)?(previous|above|prior|your)\s+(instructions?|prompts?|context|rules?|constraints?)/i,
+  /disregard\s+(all\s+)?(previous|above|prior|your)\s+(instructions?|prompts?|context|rules?)/i,
+  /forget\s+(everything|all|your|the)\s+(you|above|previous|instructions?|prompts?)/i,
+  /you\s+are\s+now\s+(a|an)\b/i,
+  /act\s+as\s+(a|an|if)\b/i,
+  /new\s+(role|persona|instructions?|task)\b/i,
+  /system\s*prompt/i,
+  /\[INST\]/i,
+  /<<SYS>>/,
+  /<\|system\|>/,
+  /jailbreak/i,
+  /DAN\s+mode/i,
+  /prompt\s+injection/i,
+];
+
+export function containsPromptInjection(text: string): boolean {
+  return INJECTION_PATTERNS.some((p) => p.test(text));
+}
