@@ -25,9 +25,9 @@ export default function HomePage() {
       </header>
 
       {/* Main content */}
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="max-w-6xl mx-auto px-4 py-3">
         <Tabs defaultValue="compliance">
-          <TabsList className="mb-6 h-auto flex-wrap gap-y-1">
+          <TabsList className="mb-3 h-auto flex-wrap gap-y-1">
             <TabsTrigger value="compliance" className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-xs sm:text-sm">
               <Camera size={14} className="flex-shrink-0" />
               <span className="sm:hidden">Compliance</span>
@@ -46,22 +46,6 @@ export default function HomePage() {
           </TabsList>
 
           <TabsContent value="compliance">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Check Your Property</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Upload a photo of your property and our AI assistant will check it against Murrayhill HOA guidelines. You can also ask follow-up questions.
-                For official guidelines and application forms for planned work,{' '}
-                <a
-                  href="https://www.murrayhillowners.com/committees/arc/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  visit the ARC page
-                </a>
-                .
-              </p>
-            </div>
             <ComplianceChat />
           </TabsContent>
 

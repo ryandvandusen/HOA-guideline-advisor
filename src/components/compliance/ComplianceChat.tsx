@@ -170,18 +170,34 @@ export function ComplianceChat() {
         </div>
       )}
 
-      {/* After submission: context label */}
-      {submissionId && selectedSlug && (
-        <div className="text-xs text-gray-400">
-          Analyzed against:{' '}
-          <span className="font-medium text-gray-600">
-            {categories.find((c) => c.slug === selectedSlug)?.label}
+      {/* After submission: context label + new check button */}
+      {submissionId && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-400">
+            {selectedSlug && (
+              <>
+                Analyzed against:{' '}
+                <span className="font-medium text-gray-600">
+                  {categories.find((c) => c.slug === selectedSlug)?.label}
+                </span>
+              </>
+            )}
           </span>
+          <button
+            onClick={handleReset}
+            className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 border border-gray-200 hover:border-gray-300 rounded-md px-2.5 py-1.5 transition-colors bg-white"
+          >
+            <RotateCcw size={12} />
+            New Check
+          </button>
         </div>
       )}
 
       {/* Chat messages */}
-      <div className={`bg-white rounded-xl border p-4 min-h-[260px] sm:min-h-[380px] flex flex-col gap-3 overflow-y-auto transition-colors ${!submissionId && !selectedSlug ? 'border-gray-200 bg-gray-50' : 'border-gray-200'}`}>
+      <div
+        className={`bg-white rounded-xl border p-4 flex flex-col gap-3 overflow-y-auto transition-colors ${!submissionId && !selectedSlug ? 'border-gray-200 bg-gray-50' : 'border-gray-200'}`}
+        style={{ height: 'calc(100vh - 340px)', minHeight: '180px' }}
+      >
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-10 gap-2">
             {!selectedSlug && !submissionId ? (
@@ -307,12 +323,6 @@ export function ComplianceChat() {
         </Button>
       </div>
 
-      {submissionId && !isLoading && (
-        <Button variant="outline" size="sm" onClick={handleReset} className="w-full text-gray-500">
-          <RotateCcw size={14} className="mr-2" />
-          Start New Check
-        </Button>
-      )}
 
       {/* Results — shown after photo submission */}
       {complianceStatus && complianceStatus !== 'inconclusive' && (
@@ -337,7 +347,11 @@ export function ComplianceChat() {
       )}
 
       <p className="text-xs text-gray-400 text-center">
-        This is a preliminary AI assessment only. Contact the ARC for official determinations.
+        Preliminary AI assessment only.{' '}
+        <a href="https://www.murrayhillowners.com/committees/arc/" target="_blank" rel="noreferrer" className="underline hover:text-gray-600">
+          Visit the ARC page
+        </a>{' '}
+        for official determinations.
       </p>
     </div>
   );

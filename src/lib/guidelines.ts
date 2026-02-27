@@ -11,14 +11,15 @@ const DATA_DIR = path.join(process.cwd(), 'src/data/guidelines');
 export const GUIDELINE_CATEGORIES: GuidelineCategory[] = [
   { slug: 'general', label: 'General Conditions' },
   { slug: 'review-process', label: 'Review Process & Fees' },
-  { slug: 'paint-siding', label: 'Paint, Siding, Brick & Stone' },
-  { slug: 'roofing', label: 'Roofing' },
-  { slug: 'doors-windows', label: 'Doors & Windows' },
-  { slug: 'lighting', label: 'Exterior Lighting' },
-  { slug: 'decks-patios', label: 'Decks, Patios & Flatwork' },
-  { slug: 'signs', label: 'Signs' },
-  { slug: 'other-structures', label: 'Other Structures' },
-  { slug: 'new-construction', label: 'New Construction' },
+  { slug: 'design-construction', label: 'Design & Construction Guidelines' },
+  { slug: 'paint-siding', label: '↳ Paint, Siding, Brick & Stone' },
+  { slug: 'roofing', label: '↳ Roofing' },
+  { slug: 'doors-windows', label: '↳ Doors & Windows' },
+  { slug: 'lighting', label: '↳ Exterior Lighting' },
+  { slug: 'decks-patios', label: '↳ Decks, Patios & Flatwork' },
+  { slug: 'signs', label: '↳ Signs' },
+  { slug: 'other-structures', label: '↳ Other Structures' },
+  { slug: 'new-construction', label: '↳ New Construction' },
   { slug: 'fencing', label: 'Fencing' },
   { slug: 'solar', label: 'Solar Panels' },
   { slug: 'landscaping', label: 'Landscaping' },
@@ -30,6 +31,7 @@ export const GUIDELINE_CATEGORIES: GuidelineCategory[] = [
 // These slugs share the same underlying text file (the PDF doesn't have
 // separate sections for them — they're all in General Architectural Guidelines)
 const SLUG_FILE_ALIASES: Record<string, string> = {
+  'design-construction': 'architectural',
   'paint-siding':  'architectural',
   'roofing':       'architectural',
   'doors-windows': 'architectural',
