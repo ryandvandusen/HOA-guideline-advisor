@@ -7,7 +7,7 @@ import { IssuesList } from './IssuesList';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Send, RotateCcw, ImagePlus, X } from 'lucide-react';
+import { Send, RotateCcw, ImagePlus, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { ClaudeAnalysisResponse } from '@/lib/claude';
 import { GuidelineCategory } from '@/types/guideline';
 
@@ -31,6 +31,7 @@ export function ComplianceChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [photoKey, setPhotoKey] = useState(0);
+  const [showRecommendations, setShowRecommendations] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,6 +79,7 @@ export function ComplianceChat() {
     setError(null);
     setSelectedSlug('');
     setPhotoKey((k) => k + 1);
+    setShowRecommendations(false);
   }
 
   async function handleSubmit() {
@@ -332,22 +334,30 @@ export function ComplianceChat() {
       {issues.length > 0 && <IssuesList issues={issues} />}
 
       {recommendations.length > 0 && (
-        <div className="space-y-1">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Recommendations
-          </h3>
-          <ul className="space-y-1">
-            {recommendations.map((rec, i) => (
-              <li key={i} className="text-xs text-gray-600 bg-brand-50 rounded px-3 py-2 leading-relaxed">
-                {rec}
-              </li>
-            ))}
-          </ul>
+        <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <button
+            onClick={() => setShowRecommendations((v) => !v)}
+            className="w-full flex items-center justify-between px-3 py-2.5 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
+          >
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              Recommendations ({recommendations.length})
+            </span>
+            {showRecommendations ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
+          </button>
+          {showRecommendations && (
+            <ul className="divide-y divide-gray-100">
+              {recommendations.map((rec, i) => (
+                <li key={i} className="text-xs text-gray-600 px-3 py-2.5 leading-relaxed bg-white">
+                  {rec}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
       <p className="text-xs text-gray-400 text-center">
-        Preliminary AI assessment only.{' '}
+        Results are for guidance only.{' '}
         <a href="https://www.murrayhillowners.com/committees/arc/" target="_blank" rel="noreferrer" className="underline hover:text-gray-600">
           Visit the ARC page
         </a>{' '}
