@@ -66,7 +66,7 @@ test.describe('Homeowner Portal', () => {
 
   test('footer is present on homepage', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText(/Murrayhill HOA.*Beaverton/i)).toBeVisible();
+    await expect(page.getByText(/not affiliated with.*Murrayhill Owners Association/i)).toBeVisible();
   });
 });
 
