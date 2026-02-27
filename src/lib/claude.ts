@@ -196,7 +196,16 @@ export async function analyzePhoto(
     response.content[0].type === 'text' ? response.content[0].text : '{}';
 
   const parsed = parseClaudeJson(rawText);
-  if (!parsed) throw new Error('Claude returned non-JSON response for photo analysis');
+  if (!parsed) {
+    return {
+      compliance_status: 'inconclusive',
+      summary: '',
+      issues: [],
+      recommendations: [],
+      not_assessed: [],
+      message: rawText,
+    };
+  }
   return parsed;
 }
 
@@ -217,7 +226,19 @@ export async function analyzeTextQuestion(
 
   const rawText = response.content[0].type === 'text' ? response.content[0].text : '{}';
   const parsed = parseClaudeJson(rawText);
-  if (!parsed) throw new Error('Claude returned non-JSON response for text analysis');
+
+  // If Claude didn't return JSON, wrap the plain text in a valid response structure
+  // so the user still sees the answer rather than a generic error message.
+  if (!parsed) {
+    return {
+      compliance_status: 'inconclusive',
+      summary: '',
+      issues: [],
+      recommendations: [],
+      not_assessed: [],
+      message: rawText,
+    };
+  }
   return parsed;
 }
 
