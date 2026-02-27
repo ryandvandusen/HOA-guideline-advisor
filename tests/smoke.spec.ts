@@ -19,7 +19,7 @@ test.describe('Homeowner Portal', () => {
     await page.goto('/');
 
     // Header
-    await expect(page.getByRole('heading', { name: 'Murrayhill HOA Portal' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Murrayhill HOA Guideline Advisor' })).toBeVisible();
 
     // All three tab triggers
     await expect(page.getByRole('tab', { name: /Check Compliance/i })).toBeVisible();

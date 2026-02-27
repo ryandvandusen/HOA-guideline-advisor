@@ -40,7 +40,7 @@ export default function GatePage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-xl font-semibold text-gray-900">Murrayhill HOA Portal</h1>
+          <h1 className="text-xl font-semibold text-gray-900">Murrayhill HOA Guideline Advisor</h1>
           <p className="text-sm text-gray-500 mt-1">Architectural Review &amp; Community Compliance</p>
         </div>
 

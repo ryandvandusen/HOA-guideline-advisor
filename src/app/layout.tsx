@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Murrayhill HOA Portal",
-  description: "Murrayhill HOA Community Portal — Compliance, Guidelines & Reporting",
+  title: "Murrayhill HOA Guideline Advisor",
+  description: "Murrayhill HOA Guideline Advisor — Compliance, Guidelines & Reporting",
 };
 
 export default function RootLayout({

@@ -45,7 +45,7 @@ jobs:
           GUIDELINES_CACHE_PATH: ${{ github.workspace }}/guidelines-cache
           UPLOADS_PATH: ${{ github.workspace }}/uploads
           DATABASE_PATH: ${{ github.workspace }}/data/hoa.db
-          NEXT_PUBLIC_APP_NAME: Murrayhill HOA Portal
+          NEXT_PUBLIC_APP_NAME: Murrayhill HOA Guideline Advisor
           HOMEOWNER_PASSCODE: ci-test-passcode
 
       - name: Upload test report
