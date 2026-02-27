@@ -1,6 +1,8 @@
-# Murrayhill HOA Portal
+# Murrayhill HOA Guideline Advisor
 
-AI-powered HOA community portal for homeowners to check property compliance via photo upload, browse architectural guidelines, and anonymously report violations — with a board admin dashboard.
+An independent, AI-powered tool to help Murrayhill homeowners navigate HOA design guidelines. Upload a photo to check compliance, browse the full ARC guidelines PDF, or anonymously report a potential violation. Includes a board admin dashboard for reviewing submissions.
+
+> This tool is not affiliated with or endorsed by the Murrayhill Owners Association. For official determinations, contact the ARC directly.
 
 ## Features
 
@@ -28,7 +30,7 @@ AI-powered HOA community portal for homeowners to check property compliance via 
 
 ```bash
 git clone <your-repo-url>
-cd murrayhill-hoa
+cd murrayhill-hoa-advisor
 npm install
 ```
 
@@ -49,7 +51,7 @@ Open `.env.local` and set each variable (see [Environment Variables](#environmen
 These are created automatically on first run, but you can create them manually:
 
 ```bash
-mkdir -p uploads/submissions uploads/reports guidelines-cache data
+mkdir -p uploads/submissions uploads/reports data
 ```
 
 ### 4. Run the development server
@@ -124,7 +126,7 @@ To watch tests run in a headed browser (useful for debugging):
 npx playwright test --headed
 ```
 
-To open the interactive UI mode:
+To open the interactive UI mode (also available as `npm run test:watch`):
 
 ```bash
 npx playwright test --ui
@@ -138,7 +140,7 @@ Test results and traces are written to `playwright-report/` (gitignored).
 |---|---|
 | Homepage loads | Header, all three tab triggers, and Admin link are visible |
 | Compliance tab default | "Check Compliance" is active by default and shows the upload area |
-| Guidelines tab | Clicking the tab loads the guideline sidebar with category names |
+| Guidelines tab | Clicking the tab loads the PDF viewer iframe |
 | Report tab | Clicking the tab shows the address, description fields, and submit button |
 | Footer | Footer text is present |
 | Admin login form | `/admin` renders username, password fields and a sign-in button |
@@ -174,7 +176,8 @@ Copy `.env.local.example` to `.env.local` and set each value.
 | `GUIDELINES_CACHE_PATH` | Yes | Absolute path to where runtime cache files are stored |
 | `UPLOADS_PATH` | Yes | Absolute path to where uploaded photos are stored |
 | `DATABASE_PATH` | Yes | Absolute path to the SQLite database file (e.g. `/path/to/data/hoa.db`) |
-| `NEXT_PUBLIC_APP_NAME` | No | Display name shown in the browser tab (default: `Murrayhill HOA Portal`) |
+| `HOMEOWNER_PASSCODE` | Yes | Community passcode required to access the homeowner portal |
+| `NEXT_PUBLIC_APP_NAME` | No | Display name shown in the browser tab (default: `Murrayhill HOA Guideline Advisor`) |
 
 ### Generating a strong JWT_SECRET
 
@@ -187,21 +190,23 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ## Project Structure
 
 ```
-murrayhill-hoa/
+murrayhill-hoa-advisor/
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx                  # Main portal (3 tabs: Compliance / Guidelines / Report)
+│   │   ├── gate/page.tsx             # Homeowner passcode gate
 │   │   ├── admin/page.tsx            # Admin login + dashboard
 │   │   └── api/                      # API routes
 │   │       ├── analyze/              # POST: photo upload + Claude vision analysis
 │   │       ├── chat/                 # POST: follow-up chat messages
 │   │       ├── report/               # POST: anonymous violation report
-│   │       ├── guidelines/           # GET: guideline list + HTML content
+│   │       ├── gate/                 # POST: passcode authentication
+│   │       ├── guidelines/           # GET: category list + PDF serve
 │   │       ├── uploads/              # GET: serve uploaded images
 │   │       └── admin/                # Admin-only routes (JWT protected)
 │   ├── components/
-│   │   ├── compliance/               # Photo uploader, chat UI, issue list
-│   │   ├── guidelines/               # Sidebar + document viewer
+│   │   ├── compliance/               # Chat UI, compliance badges, issue list
+│   │   ├── guidelines/               # PDF viewer panel
 │   │   ├── report/                   # Anonymous report form
 │   │   └── admin/                    # Login, dashboard, submissions, reports
 │   ├── data/
@@ -210,6 +215,7 @@ murrayhill-hoa/
 │       ├── claude.ts                 # Anthropic SDK wrapper + HOA system prompt
 │       ├── db.ts                     # SQLite connection + schema
 │       ├── auth.ts                   # JWT sign/verify
+│       ├── cache.ts                  # SQLite-backed response cache (version-busted by PDF mtime)
 │       ├── guidelines.ts             # Reads pre-extracted .txt files per category
 │       ├── storage.ts                # File upload helpers
 │       ├── validate.ts               # Image magic-byte validation + input limits
@@ -218,7 +224,6 @@ murrayhill-hoa/
 ├── scripts/
 │   └── extract-guidelines.cjs        # Re-run when PDF is updated (see below)
 ├── uploads/                          # Uploaded photos (gitignored)
-├── guidelines-cache/                 # Runtime cache (gitignored)
 ├── data/                             # SQLite database (gitignored)
 ├── .env.local                        # Your local secrets (gitignored)
 └── .env.local.example                # Template — copy this to .env.local
@@ -314,9 +319,9 @@ See the [Upstash Rate Limiting docs](https://upstash.com/docs/redis/sdks/ratelim
 
 In your Vercel project dashboard → **Settings → Environment Variables**, add all variables from `.env.local.example`. Remove the `*_PATH` filesystem variables and replace with cloud storage credentials.
 
-#### 5. Cache guideline HTML in the database
+#### 5. Set the guideline text files
 
-The `GUIDELINES_CACHE_PATH` local disk cache won't work on serverless. Store converted HTML in a `guideline_cache` database table instead, keyed by slug.
+The pre-extracted guideline text files (`src/data/guidelines/*.txt`) are committed to the repository and available in any deployment — no extra configuration required.
 
 ---
 
