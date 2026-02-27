@@ -1,15 +1,10 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
-function GateForm() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const from = searchParams.get('from') ?? '/';
-
+export default function GatePage() {
   const [passcode, setPasscode] = useState('');
+  const [showPasscode, setShowPasscode] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -19,6 +14,7 @@ function GateForm() {
     setLoading(true);
 
     try {
+      const from = new URLSearchParams(window.location.search).get('from') ?? '/';
       const res = await fetch('/api/gate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,7 +28,7 @@ function GateForm() {
         return;
       }
 
-      router.push(data.redirectTo ?? '/');
+      window.location.href = data.redirectTo ?? '/';
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -52,15 +48,25 @@ function GateForm() {
           <h2 className="text-sm font-medium text-gray-700 mb-4">Enter the community passcode to continue</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
-              type="password"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Passcode"
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              autoFocus
-              autoComplete="current-password"
-            />
+            <div className="relative">
+              <input
+                type={showPasscode ? 'text' : 'password'}
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                placeholder="Passcode"
+                className="w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autoFocus
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPasscode((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600 px-1"
+                tabIndex={-1}
+              >
+                {showPasscode ? 'Hide' : 'Show'}
+              </button>
+            </div>
 
             {error && (
               <p className="text-xs text-red-600">{error}</p>
@@ -81,13 +87,5 @@ function GateForm() {
         </p>
       </div>
     </div>
-  );
-}
-
-export default function GatePage() {
-  return (
-    <Suspense>
-      <GateForm />
-    </Suspense>
   );
 }
