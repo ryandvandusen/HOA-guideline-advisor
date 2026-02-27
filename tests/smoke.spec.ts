@@ -15,15 +15,14 @@ test.describe('Homeowner Portal', () => {
     await page.waitForURL('/');
   });
 
-  test('homepage loads with header and all three tabs', async ({ page }) => {
+  test('homepage loads with header and both tabs', async ({ page }) => {
     await page.goto('/');
 
     // Header
     await expect(page.getByRole('heading', { name: 'Murrayhill HOA Guideline Advisor' })).toBeVisible();
 
-    // All three tab triggers
+    // Both tab triggers
     await expect(page.getByRole('tab', { name: /Check Compliance/i })).toBeVisible();
-    await expect(page.getByRole('tab', { name: /HOA Guidelines/i })).toBeVisible();
     await expect(page.getByRole('tab', { name: /Report a Violation/i })).toBeVisible();
 
     // Admin link in header
@@ -38,17 +37,6 @@ test.describe('Homeowner Portal', () => {
 
     // Upload/drop zone prompt text
     await expect(page.getByText(/drag.*drop|upload|photo/i).first()).toBeVisible();
-  });
-
-  test('HOA Guidelines tab switches and renders PDF viewer', async ({ page }) => {
-    await page.goto('/');
-
-    await page.getByRole('tab', { name: /HOA Guidelines/i }).click();
-
-    // The guidelines panel renders an iframe embedding the combined PDF
-    await expect(page.locator('iframe[title="HOA Design Guidelines"]')).toBeVisible({
-      timeout: 10_000,
-    });
   });
 
   test('Report a Violation tab shows the report form', async ({ page }) => {

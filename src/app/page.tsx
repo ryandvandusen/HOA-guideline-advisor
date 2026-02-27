@@ -1,8 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceChat } from '@/components/compliance/ComplianceChat';
-import { GuidelinesPanel } from '@/components/guidelines/GuidelinesPanel';
 import { ViolationReportForm } from '@/components/report/ViolationReportForm';
-import { Camera, BookOpen, AlertTriangle } from 'lucide-react';
+import { Camera, AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -33,11 +32,6 @@ export default function HomePage() {
               <span className="sm:hidden">Compliance</span>
               <span className="hidden sm:inline">Check Compliance</span>
             </TabsTrigger>
-            <TabsTrigger value="guidelines" className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-xs sm:text-sm">
-              <BookOpen size={14} className="flex-shrink-0" />
-              <span className="sm:hidden">Guidelines</span>
-              <span className="hidden sm:inline">HOA Guidelines</span>
-            </TabsTrigger>
             <TabsTrigger value="report" className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-xs sm:text-sm">
               <AlertTriangle size={14} className="flex-shrink-0" />
               <span className="sm:hidden">Report</span>
@@ -47,25 +41,6 @@ export default function HomePage() {
 
           <TabsContent value="compliance">
             <ComplianceChat />
-          </TabsContent>
-
-          <TabsContent value="guidelines">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">HOA Guidelines</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Browse the full Murrayhill ARC Design Guidelines below. For specific guideline details and official application forms for planned work,{' '}
-                <a
-                  href="https://www.murrayhillowners.com/committees/arc/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-brand-600 hover:underline"
-                >
-                  visit the ARC page on the Murrayhill Owners Association website
-                </a>
-                .
-              </p>
-            </div>
-            <GuidelinesPanel />
           </TabsContent>
 
           <TabsContent value="report">
