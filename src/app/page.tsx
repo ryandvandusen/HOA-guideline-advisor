@@ -57,7 +57,7 @@ export default function HomePage() {
 
       <footer className="max-w-6xl mx-auto px-4 py-6 border-t border-gray-200 mt-8">
         <p className="text-xs text-gray-400 text-center">
-          This tool is not affiliated with or endorsed by the Murrayhill Owners Association. It is an independent resource to help homeowners understand community guidelines. For official determinations, contact the{' '}
+          This tool is not affiliated with or endorsed by the Murrayhill Homeowners Association. It is an independent resource to help homeowners understand community guidelines. For official determinations, contact the{' '}
           <a href="https://www.murrayhillowners.com/committees/arc/" target="_blank" rel="noreferrer" className="underline hover:text-gray-600">ARC directly</a>.
         </p>
       </footer>
