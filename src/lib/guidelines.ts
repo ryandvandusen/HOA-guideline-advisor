@@ -61,7 +61,22 @@ export async function getGuidelineHtml(slug: string): Promise<string | null> {
 
   const lines = text.split('\n');
   const out: string[] = ['<div class="pdf-guideline">'];
+
+  type CurrentItem = { level: number; num: string; parts: string[] };
+  let currentItem: CurrentItem | null = null;
   let paraLines: string[] = [];
+
+  function flushItem() {
+    if (!currentItem) return;
+    const indent = Math.min(currentItem.level - 1, 3);
+    out.push(
+      `<div class="gl-item gl-item-l${indent}">` +
+      `<span class="gl-num">${escHtml(currentItem.num)}.</span>` +
+      `<span>${escHtml(currentItem.parts.join(' '))}</span>` +
+      `</div>`
+    );
+    currentItem = null;
+  }
 
   function flushPara() {
     if (paraLines.length === 0) return;
@@ -73,23 +88,27 @@ export async function getGuidelineHtml(slug: string): Promise<string | null> {
     const line = raw.trim();
 
     if (!line) {
+      flushItem();
       flushPara();
       continue;
     }
 
     const item = getNumberedItem(line);
     if (item) {
+      // A new numbered item always closes the previous one
+      flushItem();
       flushPara();
-      const indent = Math.min(item.level - 1, 3);
-      out.push(
-        `<div class="gl-item gl-item-l${indent}">` +
-        `<span class="gl-num">${escHtml(item.num)}.</span>` +
-        `<span>${escHtml(item.content)}</span>` +
-        `</div>`
-      );
+      currentItem = { level: item.level, num: item.num, parts: [item.content] };
       continue;
     }
 
+    // Non-numbered line while inside an item → continuation (handles PDF word-wrap)
+    if (currentItem) {
+      currentItem.parts.push(line);
+      continue;
+    }
+
+    // Only check for headings when not inside a numbered item
     if (isHeading(line)) {
       flushPara();
       out.push(`<h3 class="gl-heading">${escHtml(line)}</h3>`);
@@ -99,6 +118,7 @@ export async function getGuidelineHtml(slug: string): Promise<string | null> {
     paraLines.push(line);
   }
 
+  flushItem();
   flushPara();
   out.push('</div>');
   return out.join('\n');
