@@ -69,7 +69,42 @@ export function SubmissionsTable({ token, onUnauthorized }: Props) {
           <RefreshCw size={13} className="mr-1" /> Refresh
         </Button>
       </div>
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
+      {/* Mobile card view */}
+      <div className="sm:hidden space-y-2">
+        {submissions.map((s) => (
+          <div key={s.id} className="bg-white border border-gray-200 rounded-lg p-3">
+            <div className="flex items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[s.compliance_status] || STATUS_COLORS.pending}`}>
+                    {STATUS_LABELS[s.compliance_status] || s.compliance_status}
+                  </span>
+                  <span className="text-xs text-gray-400">{new Date(s.created_at).toLocaleDateString()}</span>
+                </div>
+                <p className="text-sm text-gray-600 line-clamp-2">{s.ai_summary || '—'}</p>
+              </div>
+              {s.photo_path && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`/api/uploads/submissions/${s.photo_path.split('/').pop()}`}
+                  alt="Submission"
+                  className="w-12 h-12 object-cover rounded border border-gray-200 flex-shrink-0"
+                />
+              )}
+            </div>
+            <div className="mt-2">
+              <Link href={`/admin/submissions/${s.id}`}>
+                <Button variant="ghost" size="sm" className="w-full text-xs">
+                  <Eye size={13} className="mr-1" /> View Details
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden sm:block overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
             <tr>

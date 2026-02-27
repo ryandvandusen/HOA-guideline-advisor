@@ -89,17 +89,22 @@ export function ReportsTable({ token, onUnauthorized }: Props) {
               className="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-gray-50"
               onClick={() => setExpanded(expanded === report.id ? null : report.id)}
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[report.status]}`}>
-                  {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
-                </span>
-                <span className="text-sm font-medium text-gray-700 truncate">{report.property_address}</span>
-                {report.category && (
-                  <span className="flex-shrink-0 text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 capitalize">
-                    {report.category.replace(/-/g, ' ')}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className={`flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[report.status]}`}>
+                    {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
                   </span>
-                )}
-                <span className="text-xs text-gray-400 flex-shrink-0">
+                  {report.category && (
+                    <span className="flex-shrink-0 text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 capitalize">
+                      {report.category.replace(/-/g, ' ')}
+                    </span>
+                  )}
+                  <span className="text-xs text-gray-400 flex-shrink-0 sm:hidden">
+                    {new Date(report.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-gray-700 truncate">{report.property_address}</span>
+                <span className="hidden sm:inline text-xs text-gray-400 flex-shrink-0">
                   {new Date(report.created_at).toLocaleDateString()}
                 </span>
               </div>
@@ -132,14 +137,14 @@ export function ReportsTable({ token, onUnauthorized }: Props) {
                   </div>
                 )}
 
-                <div className="flex gap-3 items-start pt-1">
-                  <div>
+                <div className="flex flex-col sm:flex-row gap-3 items-start pt-1">
+                  <div className="w-full sm:w-auto">
                     <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Status</p>
                     <Select
                       value={report.status}
                       onValueChange={(val) => updateReport(report.id, val, editNotes[report.id] ?? report.admin_notes ?? undefined)}
                     >
-                      <SelectTrigger className="w-36 h-8 text-sm">
+                      <SelectTrigger className="w-full sm:w-36 h-9 text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

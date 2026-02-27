@@ -106,7 +106,7 @@ export function ViolationReportForm() {
         Reports are reviewed by the HOA board for potential investigation.
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="report-address" className="block text-sm font-medium text-gray-700 mb-1">
             Property Address <span className="text-red-500">*</span>
@@ -172,7 +172,7 @@ export function ViolationReportForm() {
           {photoPreview ? (
             <div className="relative rounded-lg overflow-hidden border border-gray-200">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photoPreview} alt="Report photo" className="w-full max-h-48 object-cover" />
+              <img src={photoPreview} alt="Report photo" className="w-full max-h-36 sm:max-h-48 object-cover" />
               <button
                 type="button"
                 onClick={() => { setPhoto(null); setPhotoPreview(null); }}
@@ -182,7 +182,7 @@ export function ViolationReportForm() {
               </button>
             </div>
           ) : (
-            <label className="flex items-center gap-3 cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-gray-400 hover:bg-gray-50 transition-colors">
+            <label className="flex items-center gap-3 cursor-pointer border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4 hover:border-gray-400 hover:bg-gray-50 transition-colors">
               <Upload size={18} className="text-gray-400" />
               <span className="text-sm text-gray-500">Click to attach a photo</span>
               <input

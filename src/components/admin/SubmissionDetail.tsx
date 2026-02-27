@@ -45,14 +45,14 @@ export function SubmissionDetail({ id, token }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
         <Link href="/admin">
           <Button variant="ghost" size="sm">
             <ArrowLeft size={15} className="mr-1" /> Back
           </Button>
         </Link>
         <h2 className="text-lg font-semibold text-gray-800">Submission Detail</h2>
-        <span className="text-xs text-gray-400">{new Date(submission.created_at).toLocaleString()}</span>
+        <span className="text-xs text-gray-400 w-full sm:w-auto">{new Date(submission.created_at).toLocaleString()}</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,7 +63,7 @@ export function SubmissionDetail({ id, token }: Props) {
             <img
               src={`/api/uploads/submissions/${submission.photo_path.split('/').pop()}`}
               alt="Submitted property photo"
-              className="w-full rounded-xl border border-gray-200 object-cover max-h-64"
+              className="w-full rounded-xl border border-gray-200 object-cover max-h-48 sm:max-h-64"
             />
           ) : (
             <div className="w-full h-32 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-400 text-sm">
@@ -101,7 +101,7 @@ export function SubmissionDetail({ id, token }: Props) {
         {/* Right: chat history */}
         <div>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Chat History</p>
-          <div className="space-y-3 bg-white border border-gray-200 rounded-xl p-4 max-h-[500px] overflow-y-auto">
+          <div className="space-y-3 bg-white border border-gray-200 rounded-xl p-4 max-h-[300px] sm:max-h-[500px] overflow-y-auto">
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${

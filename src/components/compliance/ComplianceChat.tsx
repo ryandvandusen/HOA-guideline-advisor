@@ -181,7 +181,7 @@ export function ComplianceChat() {
       )}
 
       {/* Chat messages */}
-      <div className={`bg-white rounded-xl border p-4 min-h-[380px] flex flex-col gap-3 overflow-y-auto transition-colors ${!submissionId && !selectedSlug ? 'border-gray-200 bg-gray-50' : 'border-gray-200'}`}>
+      <div className={`bg-white rounded-xl border p-4 min-h-[260px] sm:min-h-[380px] flex flex-col gap-3 overflow-y-auto transition-colors ${!submissionId && !selectedSlug ? 'border-gray-200 bg-gray-50' : 'border-gray-200'}`}>
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-10 gap-2">
             {!selectedSlug && !submissionId ? (
@@ -242,7 +242,7 @@ export function ComplianceChat() {
             />
             <button
               onClick={handleRemovePhoto}
-              className="absolute -top-1.5 -right-1.5 bg-white border border-gray-200 rounded-full p-0.5 shadow-sm hover:bg-gray-50"
+              className="absolute -top-1.5 -right-1.5 bg-white border border-gray-200 rounded-full p-1 shadow-sm hover:bg-gray-50"
               aria-label="Remove photo"
             >
               <X size={12} className="text-gray-500" />

@@ -27,18 +27,21 @@ export default function HomePage() {
       {/* Main content */}
       <main className="max-w-6xl mx-auto px-4 py-6">
         <Tabs defaultValue="compliance">
-          <TabsList className="mb-6 h-11">
-            <TabsTrigger value="compliance" className="flex items-center gap-2 px-4">
-              <Camera size={15} />
-              Check Compliance
+          <TabsList className="mb-6 h-auto flex-wrap gap-y-1">
+            <TabsTrigger value="compliance" className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-xs sm:text-sm">
+              <Camera size={14} className="flex-shrink-0" />
+              <span className="sm:hidden">Compliance</span>
+              <span className="hidden sm:inline">Check Compliance</span>
             </TabsTrigger>
-            <TabsTrigger value="guidelines" className="flex items-center gap-2 px-4">
-              <BookOpen size={15} />
-              HOA Guidelines
+            <TabsTrigger value="guidelines" className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-xs sm:text-sm">
+              <BookOpen size={14} className="flex-shrink-0" />
+              <span className="sm:hidden">Guidelines</span>
+              <span className="hidden sm:inline">HOA Guidelines</span>
             </TabsTrigger>
-            <TabsTrigger value="report" className="flex items-center gap-2 px-4">
-              <AlertTriangle size={15} />
-              Report a Violation
+            <TabsTrigger value="report" className="flex items-center gap-1.5 px-2.5 sm:px-4 py-2 text-xs sm:text-sm">
+              <AlertTriangle size={14} className="flex-shrink-0" />
+              <span className="sm:hidden">Report</span>
+              <span className="hidden sm:inline">Report a Violation</span>
             </TabsTrigger>
           </TabsList>
 

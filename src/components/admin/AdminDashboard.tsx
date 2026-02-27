@@ -34,28 +34,30 @@ export function AdminDashboard({ token, onLogout }: Props) {
 
       <div className="max-w-6xl mx-auto px-4 py-6">
         {/* Tabs */}
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-1 w-fit mb-6">
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1 w-full sm:w-fit mb-6">
           <button
             onClick={() => setTab('submissions')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
               tab === 'submissions'
                 ? 'bg-white text-gray-800 shadow-sm'
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <Home size={15} />
-            Homeowner Submissions
+            <Home size={14} className="flex-shrink-0" />
+            <span className="sm:hidden">Submissions</span>
+            <span className="hidden sm:inline">Homeowner Submissions</span>
           </button>
           <button
             onClick={() => setTab('reports')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
               tab === 'reports'
                 ? 'bg-white text-gray-800 shadow-sm'
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            <FileWarning size={15} />
-            Violation Reports
+            <FileWarning size={14} className="flex-shrink-0" />
+            <span className="sm:hidden">Reports</span>
+            <span className="hidden sm:inline">Violation Reports</span>
           </button>
         </div>
 
