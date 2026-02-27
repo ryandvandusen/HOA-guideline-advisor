@@ -1,4 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
+import { readFileSync } from 'fs';
+
+// Load .env.local for local development so HOMEOWNER_PASSCODE and other vars
+// are available to the test process without needing to prefix every command.
+try {
+  const raw = readFileSync('.env.local', 'utf-8');
+  for (const line of raw.split('\n')) {
+    const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
+    if (m && !process.env[m[1]]) {
+      process.env[m[1]] = m[2].replace(/^['"]|['"]$/g, '').trim();
+    }
+  }
+} catch { /* .env.local absent in CI — env vars are injected by the workflow */ }
 
 export default defineConfig({
   testDir: './tests',

@@ -6,6 +6,15 @@ import { test, expect } from '@playwright/test';
  */
 
 test.describe('Homeowner Portal', () => {
+  // Authenticate through the passcode gate before each homeowner test.
+  test.beforeEach(async ({ page }) => {
+    const passcode = process.env.HOMEOWNER_PASSCODE ?? 'murrayhill2026';
+    await page.goto('/gate');
+    await page.getByPlaceholder('Passcode').fill(passcode);
+    await page.getByRole('button', { name: 'Enter Portal' }).click();
+    await page.waitForURL('/');
+  });
+
   test('homepage loads with header and all three tabs', async ({ page }) => {
     await page.goto('/');
 
@@ -31,16 +40,13 @@ test.describe('Homeowner Portal', () => {
     await expect(page.getByText(/drag.*drop|upload|photo/i).first()).toBeVisible();
   });
 
-  test('HOA Guidelines tab switches and renders sidebar', async ({ page }) => {
+  test('HOA Guidelines tab switches and renders PDF viewer', async ({ page }) => {
     await page.goto('/');
 
     await page.getByRole('tab', { name: /HOA Guidelines/i }).click();
 
-    // Tab panel heading
-    await expect(page.getByRole('heading', { name: /HOA Guidelines/i })).toBeVisible();
-
-    // Wait for the guideline categories to load from the API
-    await expect(page.getByText(/fencing|paint|roofing|landscaping/i).first()).toBeVisible({
+    // The guidelines panel renders an iframe embedding the combined PDF
+    await expect(page.locator('iframe[title="HOA Design Guidelines"]')).toBeVisible({
       timeout: 10_000,
     });
   });
