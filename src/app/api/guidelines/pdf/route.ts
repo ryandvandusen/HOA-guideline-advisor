@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import { getPdfPath } from '@/lib/guidelines';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const pdfPath = getPdfPath();
 
