@@ -3,26 +3,19 @@
 import { useState, useEffect } from 'react';
 import { GuidelineCategory } from '@/types/guideline';
 import { GuidelineViewer } from './GuidelineViewer';
-import { Search, FileText, Download } from 'lucide-react';
+import { Search, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-
-type ApiResponse = {
-  categories: GuidelineCategory[];
-  appendices: { label: string; file: string }[];
-};
 
 export function GuidelinesPanel() {
   const [categories, setCategories] = useState<GuidelineCategory[]>([]);
-  const [appendices, setAppendices] = useState<{ label: string; file: string }[]>([]);
   const [selected, setSelected] = useState<GuidelineCategory | null>(null);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetch('/api/guidelines')
       .then((r) => r.json())
-      .then((data: ApiResponse) => {
+      .then((data: { categories: GuidelineCategory[] }) => {
         setCategories(data.categories);
-        setAppendices(data.appendices);
         if (data.categories.length > 0) setSelected(data.categories[0]);
       })
       .catch(console.error);
@@ -64,27 +57,6 @@ export function GuidelinesPanel() {
             </button>
           ))}
 
-          {appendices.length > 0 && (
-            <>
-              <div className="px-4 pt-3 pb-1">
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                  Appendices
-                </span>
-              </div>
-              {appendices.map((a) => (
-                <a
-                  key={a.file}
-                  href={`/api/guidelines/pdf/${encodeURIComponent(a.file)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 text-gray-600 hover:bg-gray-50 transition-colors"
-                >
-                  <Download size={13} className="flex-shrink-0 opacity-60" />
-                  <span className="leading-tight">{a.label}</span>
-                </a>
-              ))}
-            </>
-          )}
         </nav>
       </div>
 
