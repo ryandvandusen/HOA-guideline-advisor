@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error in /api/analyze:', error);
     return NextResponse.json(
-      { error: 'Failed to analyze image. Please try again.' },
+      { error: 'Something went wrong. Please try again.' },
       { status: 500 }
     );
   }
