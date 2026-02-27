@@ -30,7 +30,7 @@ export function SubmissionDetail({ id, token }: Props) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-3" />
+        <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mr-3" />
         <span className="text-gray-500 text-sm">Loading...</span>
       </div>
     );
@@ -105,12 +105,12 @@ export function SubmissionDetail({ id, token }: Props) {
             {messages.map((m, i) => (
               <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  m.role === 'assistant' ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-600'
+                  m.role === 'assistant' ? 'bg-brand-100 text-brand-600' : 'bg-gray-200 text-gray-600'
                 }`}>
                   {m.role === 'assistant' ? <Bot size={12} /> : <User size={12} />}
                 </div>
                 <div className={`max-w-[85%] rounded-xl px-3 py-2 text-xs leading-relaxed whitespace-pre-wrap ${
-                  m.role === 'assistant' ? 'bg-blue-50 text-gray-800' : 'bg-gray-800 text-white'
+                  m.role === 'assistant' ? 'bg-brand-50 text-gray-800' : 'bg-gray-800 text-white'
                 }`}>
                   {m.content}
                 </div>

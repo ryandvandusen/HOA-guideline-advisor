@@ -9,7 +9,7 @@ import { RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-gray-100 text-gray-700',
-  investigating: 'bg-blue-100 text-blue-700',
+  investigating: 'bg-brand-100 text-brand-700',
   resolved: 'bg-green-100 text-green-700',
 };
 

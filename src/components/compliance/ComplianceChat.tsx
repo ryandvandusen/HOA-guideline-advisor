@@ -151,7 +151,7 @@ export function ComplianceChat() {
             Step 1 — Select a Guideline Category <span className="text-red-500">*</span>
           </label>
           <Select value={selectedSlug} onValueChange={setSelectedSlug}>
-            <SelectTrigger className={`w-full text-sm ${!selectedSlug ? 'border-blue-400 ring-1 ring-blue-300' : 'border-green-400'}`}>
+            <SelectTrigger className={`w-full text-sm ${!selectedSlug ? 'border-brand-400 ring-1 ring-brand-300' : 'border-green-400'}`}>
               <SelectValue placeholder="Choose a category to get started…" />
             </SelectTrigger>
             <SelectContent>
@@ -163,7 +163,7 @@ export function ComplianceChat() {
             </SelectContent>
           </Select>
           {!selectedSlug && (
-            <p className="mt-1.5 text-xs text-blue-600">
+            <p className="mt-1.5 text-xs text-brand-600">
               Choose a category above to unlock the chat and photo check.
             </p>
           )}
@@ -202,8 +202,8 @@ export function ComplianceChat() {
           <div className="flex-1 flex flex-col items-center justify-center text-center py-10 gap-2">
             {!selectedSlug && !submissionId ? (
               <>
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mb-1">
-                  <span className="text-blue-500 text-lg font-bold">1</span>
+                <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center mb-1">
+                  <span className="text-brand-600 text-lg font-bold">1</span>
                 </div>
                 <p className="text-sm font-semibold text-gray-600">
                   Select a category above to get started
@@ -231,10 +231,10 @@ export function ComplianceChat() {
         ))}
         {isLoading && (
           <div className="flex gap-3">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <div className="w-3 h-3 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-3 h-3 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
             </div>
-            <div className="bg-blue-50 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-500 italic">
+            <div className="bg-brand-50 rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-500 italic">
               Analyzing...
             </div>
           </div>
@@ -278,7 +278,7 @@ export function ComplianceChat() {
               title={selectedSlug ? 'Attach a photo' : 'Select a category first'}
               className={`flex-shrink-0 self-end p-2.5 rounded-lg border transition-colors ${
                 uploadedFile
-                  ? 'border-blue-300 bg-blue-50 text-blue-600'
+                  ? 'border-brand-300 bg-brand-50 text-brand-600'
                   : 'border-gray-300 bg-white text-gray-400 hover:text-gray-600 hover:border-gray-400'
               } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
@@ -338,7 +338,7 @@ export function ComplianceChat() {
           </h3>
           <ul className="space-y-1">
             {recommendations.map((rec, i) => (
-              <li key={i} className="text-xs text-gray-600 bg-blue-50 rounded px-3 py-2 leading-relaxed">
+              <li key={i} className="text-xs text-gray-600 bg-brand-50 rounded px-3 py-2 leading-relaxed">
                 {rec}
               </li>
             ))}

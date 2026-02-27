@@ -58,7 +58,7 @@ export default function HomePage() {
                   href="https://www.murrayhillowners.com/committees/arc/"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-600 hover:underline"
+                  className="text-brand-600 hover:underline"
                 >
                   visit the ARC page on the Murrayhill Owners Association website
                 </a>

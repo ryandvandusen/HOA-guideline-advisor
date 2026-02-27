@@ -54,7 +54,7 @@ export default function GatePage() {
                 value={passcode}
                 onChange={(e) => setPasscode(e.target.value)}
                 placeholder="Passcode"
-                className="w-full px-3 py-2.5 pr-14 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 pr-14 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 autoFocus
                 autoComplete="current-password"
               />
@@ -75,7 +75,7 @@ export default function GatePage() {
             <button
               type="submit"
               disabled={loading || !passcode.trim()}
-              className="w-full py-2.5 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full py-2.5 px-4 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Checking…' : 'Enter Portal'}
             </button>
