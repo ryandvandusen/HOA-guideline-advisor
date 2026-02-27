@@ -33,16 +33,75 @@ export function getGuidelinePlainText(slug: string): string | null {
   return fs.readFileSync(filePath, 'utf-8');
 }
 
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function getNumberedItem(line: string): { level: number; num: string; content: string } | null {
+  const m = line.match(/^(\d+(?:\.\d+)*)\.\s+(.+)/);
+  if (!m) return null;
+  const level = m[1].split('.').length;
+  return { level, num: m[1], content: m[2] };
+}
+
+function isHeading(line: string): boolean {
+  return (
+    line.length >= 8 &&
+    line.length < 75 &&
+    !/^\d/.test(line) &&
+    !/\.$/.test(line) &&
+    !/,/.test(line) &&
+    line.trim().split(/\s+/).length <= 7
+  );
+}
+
 export async function getGuidelineHtml(slug: string): Promise<string | null> {
   const text = getGuidelinePlainText(slug);
   if (!text) return null;
 
-  const html = text
-    .split('\n\n')
-    .map((para) => `<p>${para.replace(/\n/g, '<br/>')}</p>`)
-    .join('\n');
+  const lines = text.split('\n');
+  const out: string[] = ['<div class="pdf-guideline">'];
+  let paraLines: string[] = [];
 
-  return `<div class="pdf-guideline">${html}</div>`;
+  function flushPara() {
+    if (paraLines.length === 0) return;
+    out.push(`<p>${paraLines.map(escHtml).join(' ')}</p>`);
+    paraLines = [];
+  }
+
+  for (const raw of lines) {
+    const line = raw.trim();
+
+    if (!line) {
+      flushPara();
+      continue;
+    }
+
+    const item = getNumberedItem(line);
+    if (item) {
+      flushPara();
+      const indent = Math.min(item.level - 1, 3);
+      out.push(
+        `<div class="gl-item gl-item-l${indent}">` +
+        `<span class="gl-num">${escHtml(item.num)}.</span>` +
+        `<span>${escHtml(item.content)}</span>` +
+        `</div>`
+      );
+      continue;
+    }
+
+    if (isHeading(line)) {
+      flushPara();
+      out.push(`<h3 class="gl-heading">${escHtml(line)}</h3>`);
+      continue;
+    }
+
+    paraLines.push(line);
+  }
+
+  flushPara();
+  out.push('</div>');
+  return out.join('\n');
 }
 
 export function getPdfPath(): string {

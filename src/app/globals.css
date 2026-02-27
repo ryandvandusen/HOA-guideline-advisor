@@ -41,6 +41,24 @@
   @apply bg-gray-50 font-semibold text-gray-700;
 }
 
+/* Structured guideline formatting */
+.pdf-guideline .gl-heading {
+  @apply text-base font-semibold text-gray-800 mt-6 mb-2 pb-1 border-b border-gray-200;
+}
+.pdf-guideline p {
+  @apply text-sm text-gray-700 leading-relaxed mb-3;
+}
+.pdf-guideline .gl-item {
+  @apply flex gap-2 text-sm text-gray-700 leading-relaxed mb-2;
+}
+.pdf-guideline .gl-num {
+  @apply font-semibold text-gray-500 flex-shrink-0 min-w-[2rem];
+}
+.pdf-guideline .gl-item-l0 { @apply pl-0; }
+.pdf-guideline .gl-item-l1 { @apply pl-5; }
+.pdf-guideline .gl-item-l2 { @apply pl-10; }
+.pdf-guideline .gl-item-l3 { @apply pl-14; }
+
 
 
 @layer base {
