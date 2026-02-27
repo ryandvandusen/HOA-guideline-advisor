@@ -20,25 +20,18 @@ const PDF_PATH = path.join(GUIDELINES_PATH, '2023-MOA-Design-Guidelines.pdf');
 const OUT_DIR = path.join(__dirname, '../src/data/guidelines');
 
 const SECTION_MARKERS = {
-  'general':          [['General Conditions', 'Design Review Fees']],
-  'review-process':   [['Design Review Fees', 'General Architectural Guidelines']],
-  'paint-siding':     [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'roofing':          [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'doors-windows':    [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'lighting':         [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'decks-patios':     [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'signs':            [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'other-structures': [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'new-construction': [['General Architectural Guidelines', 'Fencing Guidelines']],
-  'fencing':          [['Fencing Guidelines', 'Landscaping Applications']],
+  'general':        [['General Conditions', 'Design Review Fees']],
+  'review-process': [['Design Review Fees', 'General Architectural Guidelines']],
+  'architectural':  [['General Architectural Guidelines', 'Fencing Guidelines']],
+  'fencing':        [['Fencing Guidelines', 'Landscaping Applications']],
   'solar': [
     ['Solar Installation Review', 'What to Include with a Construction Application'],
     ['General Architectural Guidelines', 'Fencing Guidelines'],
   ],
-  'landscaping':      [['Landscaping Applications', 'Flagpole Installation Standards']],
-  'trees':            [['Landscaping Standards', 'Flagpole Installation Standards']],
-  'flagpoles':        [['Flagpole Installation Standards', 'Satellite Dishes']],
-  'satellites':       [['Satellite Dishes', 'Amendments']],
+  'landscaping':    [['Landscaping Applications', 'Flagpole Installation Standards']],
+  'trees':          [['Landscaping Standards', 'Flagpole Installation Standards']],
+  'flagpoles':      [['Flagpole Installation Standards', 'Satellite Dishes']],
+  'satellites':     [['Satellite Dishes', 'Amendments']],
 };
 
 function cleanPdfText(text) {
