@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { SubmissionsTable } from './SubmissionsTable';
 import { ReportsTable } from './ReportsTable';
 import { Button } from '@/components/ui/button';
-import { LogOut, Home, FileWarning } from 'lucide-react';
+import { LogOut, Home, FileWarning, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
 type Tab = 'submissions' | 'reports';
 
@@ -25,10 +26,19 @@ export function AdminDashboard({ token, onLogout }: Props) {
             <h1 className="text-lg font-semibold text-gray-800">HOA Admin Portal</h1>
             <p className="text-xs text-gray-400">Murrayhill HOA Board</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={onLogout} className="text-gray-500">
-            <LogOut size={15} className="mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors px-2 py-1.5"
+            >
+              <ArrowLeft size={13} />
+              Portal
+            </Link>
+            <Button variant="ghost" size="sm" onClick={onLogout} className="text-gray-500">
+              <LogOut size={15} className="mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
